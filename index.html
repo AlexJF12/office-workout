@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desk Reset — Office Workouts</title>
+<meta name="description" content="Short, quiet workouts you can do at your desk without changing clothes.">
+<meta name="color-scheme" content="dark light">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true">
+  <span class="ambient__blob ambient__blob--a"></span>
+  <span class="ambient__blob ambient__blob--b"></span>
+</div>
+
+<div class="app">
+  <header class="app-bar">
+    <button class="icon-btn" type="button" data-action="back" hidden aria-label="Back to routines">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <p class="app-bar__title">Desk&nbsp;Reset</p>
+    <p class="app-bar__sub" data-role="bar-sub">Move a little. Often.</p>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- ───────────────────────── Home ───────────────────────── -->
+    <section class="screen screen--home" data-screen="home" aria-label="Choose a routine">
+      <div class="hero">
+        <h1 class="hero__title" data-stagger>Loosen up<br><em>between meetings.</em></h1>
+        <p class="hero__lede" data-stagger>No mat, no sweat, no changing clothes. Pick a length and follow along.</p>
+      </div>
+
+      <ul class="routines" data-role="routines"></ul>
+
+      <p class="footnote" data-stagger>Stop anything that hurts. Breathe through the holds.</p>
+    </section>
+
+    <!-- ─────────────────────── Session ──────────────────────── -->
+    <section class="screen screen--session" data-screen="session" hidden aria-label="Workout in progress">
+      <div class="progress" data-role="progress-wrap">
+        <span class="progress__fill" data-role="progress"></span>
+      </div>
+
+      <p class="step" data-role="step">Exercise 1 of 8</p>
+
+      <div class="dial" data-role="dial">
+        <svg class="dial__ring" viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="dial__track" cx="100" cy="100" r="88" pathLength="1"/>
+          <circle class="dial__sweep" cx="100" cy="100" r="88" pathLength="1"/>
+        </svg>
+
+        <div class="dial__face">
+          <p class="dial__phase" data-role="phase">Get ready</p>
+          <p class="dial__time" data-role="time" aria-live="off">0:20</p>
+        </div>
+
+        <p class="dial__countin" data-role="countin" hidden aria-hidden="true">3</p>
+      </div>
+
+      <div class="cue" data-role="cue">
+        <h2 class="cue__name" data-role="name">—</h2>
+        <p class="cue__text" data-role="text">—</p>
+        <p class="cue__next" data-role="next"></p>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn--ghost" type="button" data-action="prev" aria-label="Previous exercise">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-8 6 8 6M7 6v12"/></svg>
+        </button>
+        <button class="btn btn--primary" type="button" data-action="toggle">
+          <svg class="btn__icon btn__icon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+          <svg class="btn__icon btn__icon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+          <span class="btn__label" data-role="toggle-label">Pause</span>
+        </button>
+        <button class="btn btn--ghost" type="button" data-action="next" aria-label="Skip exercise">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8 6-8 6M17 6v12"/></svg>
+        </button>
+      </div>
+
+      <p class="live" data-role="live" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- ──────────────────────── Done ────────────────────────── -->
+    <section class="screen screen--done" data-screen="done" hidden aria-label="Workout complete">
+      <div class="badge" data-stagger>
+        <svg class="badge__mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="badge__ring" cx="32" cy="32" r="28" pathLength="1"/>
+          <path class="badge__check" d="M19 33.5l9 9 17-19" pathLength="1"/>
+        </svg>
+      </div>
+      <h2 class="done__title" data-stagger>Nicely done.</h2>
+      <p class="done__stat" data-stagger><strong data-role="done-count">8</strong> exercises · <strong data-role="done-time">5:00</strong></p>
+      <div class="done__actions" data-stagger>
+        <button class="btn btn--primary" type="button" data-action="again"><span class="btn__label">Go again</span></button>
+        <button class="btn btn--ghost btn--wide" type="button" data-action="home"><span class="btn__label">Pick another</span></button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/workouts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
