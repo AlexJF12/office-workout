@@ -209,7 +209,10 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor;
   width: 1px; background: linear-gradient(var(--line), color-mix(in srgb, var(--line) 20%, transparent));
 }
 
-.move { position: relative; }
+.move {
+  position: relative;
+  display: grid; grid-template-columns: 1fr auto; gap: .8rem; align-items: start;
+}
 .move__n {
   position: absolute; left: -2rem; top: 0;
   display: grid; place-items: center;
@@ -233,8 +236,32 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor;
 }
 .tag--work { color: var(--work); background: color-mix(in srgb, var(--work) 14%, transparent); }
 .tag--rest { color: var(--rest); background: color-mix(in srgb, var(--rest) 16%, transparent); }
+.tag--part { color: var(--ink-faint); background: color-mix(in srgb, var(--ink) 7%, transparent); font-weight: 550; }
 
 .group .btn--wide { text-decoration: none; }
+
+/* ── stick figures ──────────────────────────────────────────
+   Bones the exercise moves take the accent colour and a heavier
+   stroke; everything else stays muted, so "what moves" is legible
+   before the animation is even understood.                    */
+.fig {
+  width: 5.5rem; height: 7.25rem; flex: none;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  overflow: visible;
+}
+.fig__ground, .fig__prop { stroke: var(--line); stroke-width: 2.5; }
+.fig__prop { stroke: var(--ink-faint); opacity: .55; }
+.fig__bone { stroke: var(--ink-faint); stroke-width: 3.4; }
+.fig__bone.is-far, .fig__ghost { opacity: .38; }
+.fig__bone.is-hot { stroke: var(--work); stroke-width: 4.6; }
+.fig__head { stroke: var(--ink-faint); stroke-width: 3.4; fill: none; }
+.fig__head.is-hot { stroke: var(--work); }
+
+@media (max-width: 22rem) {
+  .move { grid-template-columns: 1fr; }
+  .fig { justify-self: start; }
+}
 
 /* ── session ────────────────────────────────────────────── */
 .progress {
