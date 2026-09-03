@@ -71,7 +71,7 @@
   let current = 'home';
   let swapping = false;
 
-  async function goTo(name, dir = 'forward') {
+  async function goTo(name, dir = 'forward', instant = false) {
     if (swapping || name === current) return;
     const from = screens[current], to = screens[name];
     swapping = true;
@@ -88,7 +88,7 @@
             : name === 'done' ? 'That is the hard part done.'
             : (state.routine?.blurb ?? ''));
 
-    if (still()) {
+    if (still() || instant) {
       from.hidden = true; current = name; swapping = false; return;
     }
 
@@ -167,7 +167,7 @@
     return segs;
   }
 
-  async function startRoutine(id) {
+  async function startRoutine(id, { instant = false } = {}) {
     const routine = WORKOUTS.find(r => r.id === id);
     if (!routine) return;
     state.routine = routine;
@@ -178,7 +178,7 @@
 
     applySegment(state.segments[0], { animate: false });
     setProgress(0);
-    await goTo('session');
+    await goTo('session', 'forward', instant);
     await countIn();
     resume();
   }
@@ -405,4 +405,10 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 
   buildHome();
+
+  // workouts.html links straight into a routine; skip the home entrance
+  // animation in that case so the app does not flash a screen it is
+  // already leaving
+  const deepLink = new URLSearchParams(location.search).get('start');
+  if (deepLink && WORKOUTS.some(r => r.id === deepLink)) startRoutine(deepLink, { instant: true });
 })();

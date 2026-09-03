@@ -167,6 +167,75 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor;
 
 .footnote { margin: 1.75rem 0 0; font-size: .8rem; color: var(--ink-faint); }
 
+/* link out to the full catalogue */
+.browse-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  margin-top: 1rem; padding: .9rem 1.15rem;
+  color: var(--ink-soft); text-decoration: none; font-size: .9rem; font-weight: 550;
+  border: 1px dashed var(--line); border-radius: var(--r-md);
+  transition: color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+}
+.browse-link svg { width: 1rem; height: 1rem; flex: none;
+  transition: transform var(--dur-2) var(--ease-emph); }
+@media (hover: hover) {
+  .browse-link:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .browse-link:hover svg { transform: translate3d(4px, 0, 0); }
+}
+:where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--r-sm); }
+
+/* ── library page ───────────────────────────────────────── */
+.hero--tight { padding-bottom: 1.5rem; }
+
+.library { display: grid; gap: 1.25rem; }
+
+.group {
+  padding: 1.25rem 1.15rem 1.15rem;
+  background: var(--bg-raise);
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+.group__head { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .5rem 1rem; }
+.group__name { margin: 0; font-size: 1.25rem; font-weight: 650; letter-spacing: -.02em; }
+.group__blurb { grid-column: 1 / -1; margin: 0; font-size: .88rem; color: var(--ink-soft); }
+
+/* a rail down the left ties the exercises into one sequence */
+.moves {
+  position: relative; list-style: none;
+  margin: 1.25rem 0; padding: 0 0 0 2rem;
+  display: grid; gap: 1.1rem;
+}
+.moves::before {
+  content: ""; position: absolute; left: .68rem; top: .55rem; bottom: .55rem;
+  width: 1px; background: linear-gradient(var(--line), color-mix(in srgb, var(--line) 20%, transparent));
+}
+
+.move { position: relative; }
+.move__n {
+  position: absolute; left: -2rem; top: 0;
+  display: grid; place-items: center;
+  width: 1.4rem; height: 1.4rem; border-radius: 50%;
+  background: var(--bg-raise); border: 1px solid var(--line);
+  font-size: .72rem; font-weight: 650; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+}
+@media (hover: hover) {
+  .move:hover .move__n { color: var(--work); border-color: var(--work); }
+}
+.move__name { margin: 0 0 .2rem; font-size: 1rem; font-weight: 620; letter-spacing: -.01em; }
+.move__text { margin: 0; font-size: .89rem; color: var(--ink-soft); }
+.move__meta { display: flex; flex-wrap: wrap; gap: .35rem; margin: .45rem 0 0; }
+
+.tag {
+  font-size: .72rem; font-weight: 620; letter-spacing: .02em;
+  padding: .18rem .5rem; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.tag--work { color: var(--work); background: color-mix(in srgb, var(--work) 14%, transparent); }
+.tag--rest { color: var(--rest); background: color-mix(in srgb, var(--rest) 16%, transparent); }
+
+.group .btn--wide { text-decoration: none; }
+
 /* ── session ────────────────────────────────────────────── */
 .progress {
   height: 3px; border-radius: 999px; background: var(--line); overflow: hidden;

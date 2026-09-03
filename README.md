@@ -4,11 +4,18 @@ Static website to display workouts to do in the office. No build step, no
 dependencies — open `index.html` or serve the folder.
 
 ```
-index.html        markup for the three screens (home / session / done)
-css/styles.css    design tokens + the motion system
+index.html        the player — three screens (home / session / done)
+workouts.html     the catalogue — every routine and exercise, described
+css/styles.css    design tokens + the motion system, shared by both pages
 js/workouts.js    routine data — edit this to change the exercises
 js/app.js         session clock, screen orchestration, animation timing
+js/browse.js      builds the catalogue page from the same data
 ```
+
+Both pages read `js/workouts.js`, so adding an exercise there makes it show
+up in the player and the catalogue at once. `workouts.html` links into a
+routine with `index.html?start=<routine id>`, which starts it immediately and
+skips the home entrance animation.
 
 ## Motion
 
