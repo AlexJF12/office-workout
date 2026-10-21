@@ -1,21 +1,23 @@
 import { forwardRef, useImperativeHandle, useRef, useState, type ReactNode } from 'react';
+import { commitDistance, swipeResult, type SwipeDir } from '../lib/swipe';
 
-export type SwipeDir = 'left' | 'right';
+export type { SwipeDir };
 
 export interface SwipeHandle {
   /** fly the card off-screen as if swiped (used by the buttons and arrow keys) */
   swipe: (dir: SwipeDir) => void;
 }
 
-const THRESHOLD = 0.28; // fraction of card width
-const FLICK_SPEED = 0.6; // px per ms
 const FLY_MS = 260;
 
-/** A draggable card. Drag past the threshold (or flick) to swipe it away. */
+/**
+ * A draggable card. It only counts as a swipe if it's past the commit line when
+ * you let go; drag it back toward the middle and it snaps home without counting.
+ */
 export const SwipeCard = forwardRef<SwipeHandle, { onSwiped: (dir: SwipeDir) => void; children: ReactNode }>(
   function SwipeCard({ onSwiped, children }, ref) {
     const el = useRef<HTMLDivElement>(null);
-    const drag = useRef<{ id: number; x0: number; y0: number; t: number; lastX: number; lastT: number; v: number } | null>(null);
+    const drag = useRef<{ id: number; x0: number; y0: number; dx: number } | null>(null);
     const [dx, setDx] = useState(0);
     const [dy, setDy] = useState(0);
     const [flying, setFlying] = useState<SwipeDir | null>(null);
@@ -31,11 +33,18 @@ export const SwipeCard = forwardRef<SwipeHandle, { onSwiped: (dir: SwipeDir) => 
 
     useImperativeHandle(ref, () => ({ swipe: fly }));
 
+    const snapBack = () => {
+      drag.current = null;
+      setSettling(true);
+      setDx(0);
+      setDy(0);
+    };
+
     const onPointerDown = (e: React.PointerEvent) => {
       if (flying || e.button !== 0) return;
       // Let buttons and links inside the card work normally.
       if ((e.target as HTMLElement).closest('button, a')) return;
-      drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t: e.timeStamp, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
+      drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0 };
       el.current?.setPointerCapture(e.pointerId);
       setSettling(false);
     };
@@ -43,31 +52,32 @@ export const SwipeCard = forwardRef<SwipeHandle, { onSwiped: (dir: SwipeDir) => 
     const onPointerMove = (e: React.PointerEvent) => {
       const d = drag.current;
       if (!d || d.id !== e.pointerId) return;
-      const dt = e.timeStamp - d.lastT;
-      if (dt > 0) d.v = (e.clientX - d.lastX) / dt;
-      d.lastX = e.clientX;
-      d.lastT = e.timeStamp;
-      setDx(e.clientX - d.x0);
+      d.dx = e.clientX - d.x0;
+      setDx(d.dx);
       setDy((e.clientY - d.y0) * 0.3);
     };
 
-    const end = (e: React.PointerEvent) => {
+    const onPointerUp = (e: React.PointerEvent) => {
       const d = drag.current;
       if (!d || d.id !== e.pointerId) return;
+      const dir = swipeResult(d.dx, el.current?.offsetWidth ?? 320);
       drag.current = null;
-      const width = el.current?.offsetWidth ?? 320;
-      const x = e.clientX - d.x0;
-      if (x > width * THRESHOLD || (d.v > FLICK_SPEED && x > 30)) return fly('right');
-      if (x < -width * THRESHOLD || (d.v < -FLICK_SPEED && x < -30)) return fly('left');
-      setSettling(true);
-      setDx(0);
-      setDy(0);
+      if (dir) fly(dir);
+      else snapBack();
+    };
+
+    // The browser took the gesture over (e.g. scrolling): never count it.
+    const onPointerCancel = (e: React.PointerEvent) => {
+      if (drag.current?.id === e.pointerId) snapBack();
     };
 
     const width = typeof window === 'undefined' ? 400 : window.innerWidth;
     const x = flying ? (flying === 'right' ? 1 : -1) * (width + 200) : dx;
     const rot = x / 18;
-    const stamp = Math.max(-1, Math.min(1, x / 120));
+    // The stamp reaches full strength exactly at the commit line, so what you see is what letting go will do.
+    const need = commitDistance(el.current?.offsetWidth ?? 320);
+    const stamp = flying ? (flying === 'right' ? 1 : -1) : Math.max(-1, Math.min(1, x / need));
+    const armed = Math.abs(stamp) >= 1;
 
     return (
       <div
@@ -76,13 +86,13 @@ export const SwipeCard = forwardRef<SwipeHandle, { onSwiped: (dir: SwipeDir) => 
         style={{ transform: `translate(${x}px, ${dy}px) rotate(${rot}deg)` }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
-        onPointerUp={end}
-        onPointerCancel={end}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
       >
-        <div className="stamp stamp-done" style={{ opacity: Math.max(0, stamp) }}>
+        <div className={`stamp stamp-done${armed && stamp > 0 ? ' armed' : ''}`} style={{ opacity: Math.max(0, stamp) ** 2 }}>
           Done
         </div>
-        <div className="stamp stamp-skip" style={{ opacity: Math.max(0, -stamp) }}>
+        <div className={`stamp stamp-skip${armed && stamp < 0 ? ' armed' : ''}`} style={{ opacity: Math.max(0, -stamp) ** 2 }}>
           Skip
         </div>
         {children}

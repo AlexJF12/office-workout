@@ -33,6 +33,7 @@ export function Deck({ session, onResult, onUndo, onEnd }: Props) {
 
   return (
     <div className="screen deck-screen">
+      <div className="band deck-band" aria-hidden="true" />
       <header className="deck-header">
         <button className="icon-btn" onClick={onEnd} aria-label="End session">
           <Icon name="close" />
