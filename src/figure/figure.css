@@ -1,0 +1,50 @@
+.figure {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.figure .seg {
+  stroke: var(--figure);
+  stroke-linecap: round;
+  fill: none;
+}
+.figure .seg.far {
+  stroke: var(--figure-far);
+}
+.figure .seg.focus {
+  stroke: var(--accent);
+}
+.figure .seg.focus.far {
+  stroke: var(--accent-far);
+}
+.figure circle.head,
+.figure path.head {
+  fill: var(--figure);
+  stroke: none;
+}
+.figure .eye {
+  fill: var(--card);
+}
+.figure .floor {
+  stroke: var(--prop);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.figure .prop {
+  fill: var(--prop);
+}
+.figure .prop-soft {
+  fill: var(--prop-soft);
+}
+.figure .hint {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+  stroke-linecap: round;
+  opacity: 0.7;
+  marker-end: url(#arrow);
+}
+.figure .arrowhead {
+  fill: var(--accent);
+}
