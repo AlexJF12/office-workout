@@ -26,7 +26,7 @@ export function Home({
   const moves = history.reduce((n, h) => n + h.done.length, 0);
   return (
     <div className="screen home">
-      <div className="home-hero">
+      <div className="band home-hero">
         <div className="hero-figure">
           <Figure anim={HERO} playing />
         </div>
@@ -91,7 +91,7 @@ export function Summary({ entry, onAgain, onHome }: { entry: HistoryEntry; onAga
   const headline = n === 0 ? 'Maybe next time' : n >= total * 0.75 ? 'Great session!' : 'Nice work!';
   return (
     <div className="screen summary">
-      <div className="summary-head">
+      <div className="band summary-head">
         <div className="big-count">
           <span>{n}</span>
           <small>/ {total}</small>
@@ -137,7 +137,7 @@ export function History({ history, onBack, onClear }: { history: HistoryEntry[];
   const [confirming, setConfirming] = useState(false);
   return (
     <div className="screen history">
-      <header className="bar">
+      <header className="band bar">
         <button className="icon-btn" onClick={onBack} aria-label="Back">
           <Icon name="back" />
         </button>

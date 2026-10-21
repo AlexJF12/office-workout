@@ -12,10 +12,10 @@
   stroke: var(--figure-far);
 }
 .figure .seg.focus {
-  stroke: var(--accent);
+  stroke: var(--focus);
 }
 .figure .seg.focus.far {
-  stroke: var(--accent-far);
+  stroke: var(--focus-far);
 }
 .figure circle.head,
 .figure path.head {
@@ -38,7 +38,7 @@
 }
 .figure .hint {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--focus);
   stroke-width: 2;
   stroke-dasharray: 3 4;
   stroke-linecap: round;
@@ -46,5 +46,5 @@
   marker-end: url(#arrow);
 }
 .figure .arrowhead {
-  fill: var(--accent);
+  fill: var(--focus);
 }

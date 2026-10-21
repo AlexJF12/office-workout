@@ -1,49 +1,33 @@
+/* One colour scheme everywhere: a dark navy band on top of a light sky-blue page. */
 :root {
-  --bg: #f3efe8;
-  --card: #fffdf9;
-  --ink: #1f2430;
-  --muted: #6b7180;
-  --line: #e6e0d6;
-  --figure: #2f3747;
-  --figure-far: #9aa3b4;
-  --accent: #ff6a3d;
+  --navy: #0f2747;
+  --navy-2: #1b3d6b;
+  --on-navy: #ffffff;
+  --on-navy-muted: #a9c1e2;
+  --sky: #cfe3fa;
+  --sky-2: #e6f1fd;
+  --card: #ffffff;
+  --ink: #0f2140;
+  --muted: #586a86;
+  --line: #dbe6f3;
+  --figure: #1d3557;
+  --figure-far: #93a9c7;
+  --accent: #2d7ff9;
   --accent-ink: #ffffff;
-  --accent-far: #ffb39a;
-  --accent-soft: #ffe7dd;
-  --prop: #d9d1c4;
-  --prop-soft: #ebe5db;
-  --done: #1fa971;
-  --done-soft: #dcf3e8;
-  --skip: #8a90a0;
-  --skip-soft: #eceef2;
+  --accent-soft: #e2eeff;
+  /* highlighted muscles, kept warm so they stand out from the blue figure */
+  --focus: #ff7a45;
+  --focus-far: #ffbb9c;
+  --prop: #c6d6ea;
+  --prop-soft: #e3ecf7;
+  --done: #17a673;
+  --done-soft: #dbf3e9;
+  --skip: #8796ad;
+  --skip-soft: #e9eff7;
   --danger: #d64545;
-  --shadow: 0 10px 30px rgba(60, 45, 20, 0.12), 0 2px 6px rgba(60, 45, 20, 0.06);
+  --shadow: 0 12px 30px rgba(15, 39, 71, 0.18), 0 2px 6px rgba(15, 39, 71, 0.08);
   --radius: 24px;
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #16181d;
-    --card: #20232a;
-    --ink: #eef0f4;
-    --muted: #9aa1b0;
-    --line: #2f333c;
-    --figure: #e9ecf2;
-    --figure-far: #7c8496;
-    --accent: #ff7a4f;
-    --accent-ink: #1a1a1a;
-    --accent-far: #a8573c;
-    --accent-soft: #3a2620;
-    --prop: #3a3f4a;
-    --prop-soft: #2a2e36;
-    --done: #34c38a;
-    --done-soft: #1d3a2e;
-    --skip: #8a90a0;
-    --skip-soft: #2c3038;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-    color-scheme: dark;
-  }
 }
 
 * {
@@ -54,7 +38,7 @@ html,
 body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
+  background: var(--sky);
   color: var(--ink);
   font-family:
     ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -87,6 +71,7 @@ h2 {
 }
 
 .screen {
+  position: relative;
   height: 100%;
   height: 100dvh;
   max-width: 480px;
@@ -94,6 +79,17 @@ h2 {
   display: flex;
   flex-direction: column;
   padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+}
+
+/*
+ * The navy top band. It sits inside the narrow column but bleeds out to the
+ * screen edges and up to the top of the page.
+ */
+.band {
+  background: var(--navy);
+  color: var(--on-navy);
+  box-shadow: 0 0 0 100vmax var(--navy);
+  clip-path: inset(-100vmax -100vmax 0 -100vmax);
 }
 
 /* ---------- buttons ---------- */
@@ -127,10 +123,11 @@ h2 {
 .btn-accent {
   background: var(--accent);
   color: var(--accent-ink);
+  box-shadow: 0 6px 16px rgba(45, 127, 249, 0.35);
 }
 .btn-ghost {
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--line);
+  background: var(--card);
+  color: var(--navy);
 }
 .btn-danger {
   background: var(--danger);
@@ -138,38 +135,38 @@ h2 {
 }
 .btn-link {
   background: none;
-  color: var(--muted);
+  color: var(--navy-2);
   padding: 8px;
 }
 .icon-btn {
   border: 0;
-  background: var(--card);
+  background: var(--navy-2);
+  color: var(--on-navy);
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   flex: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* ---------- home ---------- */
 
 .home {
-  justify-content: center;
   gap: 20px;
   overflow-y: auto;
 }
 .home-hero {
   text-align: center;
+  padding: 20px 0 28px;
 }
 .hero-figure {
   width: 150px;
   height: 165px;
-  margin: 0 auto 8px;
-  background: var(--card);
+  margin: 0 auto 12px;
+  background: linear-gradient(180deg, var(--sky-2), var(--card));
   border-radius: 32px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   padding: 8px;
 }
 .home h1 {
@@ -181,6 +178,9 @@ h2 {
   margin: 8px auto 0;
   max-width: 34ch;
 }
+.band .lede {
+  color: var(--on-navy-muted);
+}
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -191,7 +191,7 @@ h2 {
   border-radius: 18px;
   padding: 12px 8px;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(15, 39, 71, 0.08);
 }
 .stat strong {
   display: flex;
@@ -199,9 +199,10 @@ h2 {
   justify-content: center;
   gap: 4px;
   font-size: 1.4rem;
+  color: var(--navy);
 }
 .stat strong svg {
-  color: var(--accent);
+  color: var(--focus);
 }
 .stat span {
   font-size: 0.8rem;
@@ -218,7 +219,7 @@ h2 {
   color: var(--muted);
   text-align: center;
   line-height: 1.4;
-  margin: 0;
+  margin: auto 0 0;
 }
 
 /* ---------- deck ---------- */
@@ -227,10 +228,24 @@ h2 {
   gap: 12px;
   overflow: hidden;
 }
+/* Navy behind the header and the top of the card; sky behind the rest. */
+.deck-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44%;
+  z-index: 0;
+}
+.deck-screen > :not(.deck-band) {
+  position: relative;
+  z-index: 1;
+}
 .deck-header {
   display: flex;
   align-items: center;
   gap: 12px;
+  color: var(--on-navy);
 }
 .progress {
   flex: 1;
@@ -243,7 +258,7 @@ h2 {
   margin-bottom: 6px;
 }
 .progress-done {
-  color: var(--done);
+  color: #6fe0b4;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -256,23 +271,22 @@ h2 {
   flex: 1;
   height: 5px;
   border-radius: 3px;
-  background: var(--line);
+  background: var(--navy-2);
   transition: background 0.2s;
 }
 .progress-bar span.done {
-  background: var(--done);
+  background: #3ccf95;
 }
 .progress-bar span.skipped {
-  background: var(--skip);
-  opacity: 0.5;
+  background: var(--on-navy-muted);
+  opacity: 0.45;
 }
 .progress-bar span.current {
-  background: var(--accent);
+  background: #6aa8ff;
 }
 
 .stack {
   flex: 1;
-  position: relative;
   min-height: 0;
 }
 
@@ -299,7 +313,7 @@ h2 {
 }
 .card.behind {
   transform: scale(0.94) translateY(14px);
-  opacity: 0.7;
+  filter: brightness(0.96);
   pointer-events: none;
 }
 
@@ -315,7 +329,8 @@ h2 {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   pointer-events: none;
-  background: color-mix(in srgb, var(--card) 80%, transparent);
+  background: rgba(255, 255, 255, 0.85);
+  transition: transform 0.12s;
 }
 .stamp-done {
   left: 20px;
@@ -327,6 +342,19 @@ h2 {
   color: var(--skip);
   transform: rotate(12deg);
 }
+/* past the line: letting go now will count */
+.stamp-done.armed {
+  transform: rotate(-12deg) scale(1.12);
+  background: var(--done);
+  color: #fff;
+  border-color: var(--done);
+}
+.stamp-skip.armed {
+  transform: rotate(12deg) scale(1.12);
+  background: var(--skip);
+  color: #fff;
+  border-color: var(--skip);
+}
 
 .card-inner {
   height: 100%;
@@ -337,7 +365,7 @@ h2 {
   position: relative;
   flex: none;
   height: clamp(150px, 32dvh, 280px);
-  background: linear-gradient(180deg, var(--accent-soft), transparent 85%);
+  background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 55%, var(--card) 100%);
   padding: 8px 0 0;
 }
 .chip {
@@ -348,11 +376,13 @@ h2 {
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--card);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: var(--navy);
+  box-shadow: 0 1px 3px rgba(15, 39, 71, 0.12);
 }
 .chip.area {
   left: 12px;
-  color: var(--accent);
+  background: var(--navy);
+  color: var(--on-navy);
 }
 .chip.dose {
   right: 12px;
@@ -365,6 +395,7 @@ h2 {
 }
 .card-body h2 {
   font-size: 1.45rem;
+  color: var(--navy);
 }
 .why {
   color: var(--muted);
@@ -393,7 +424,7 @@ h2 {
 .card-foot {
   flex: none;
   padding: 10px 14px 14px;
-  border-top: 1px solid var(--line);
+  background: var(--sky-2);
 }
 .reps-note {
   text-align: center;
@@ -402,7 +433,7 @@ h2 {
   padding: 10px 0 6px;
 }
 .reps-note strong {
-  color: var(--ink);
+  color: var(--navy);
 }
 
 /* ---------- timer ---------- */
@@ -419,7 +450,7 @@ h2 {
   flex: none;
 }
 .ring-bg {
-  fill: none;
+  fill: var(--card);
   stroke: var(--line);
   stroke-width: 6;
 }
@@ -438,7 +469,7 @@ h2 {
 .ring-text {
   font-size: 17px;
   font-weight: 750;
-  fill: var(--ink);
+  fill: var(--navy);
   font-variant-numeric: tabular-nums;
 }
 .timer-info {
@@ -447,6 +478,7 @@ h2 {
 }
 .timer-label {
   font-weight: 700;
+  color: var(--navy);
 }
 .timer.finished .timer-label {
   color: var(--done);
@@ -461,6 +493,9 @@ h2 {
 .timer-buttons {
   display: flex;
   gap: 6px;
+}
+.timer-buttons .btn-ghost {
+  box-shadow: inset 0 0 0 2px var(--line);
 }
 
 /* ---------- action bar ---------- */
@@ -506,10 +541,10 @@ h2 {
 .action.undo {
   width: 46px;
   height: 46px;
-  color: var(--muted);
+  color: var(--navy-2);
 }
 .action:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -521,11 +556,11 @@ h2 {
 }
 .summary-head {
   text-align: center;
-  padding-top: 16px;
+  padding: 24px 0 26px;
 }
 .big-count {
   font-weight: 800;
-  color: var(--done);
+  color: #6fe0b4;
 }
 .big-count span {
   font-size: 4.5rem;
@@ -533,7 +568,7 @@ h2 {
 }
 .big-count small {
   font-size: 1.5rem;
-  color: var(--muted);
+  color: var(--on-navy-muted);
 }
 .summary h1 {
   font-size: 1.7rem;
@@ -546,6 +581,11 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+.summary > .ex-list {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 14px;
 }
 .ex-list li {
   display: inline-flex;
@@ -573,6 +613,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-bottom: 14px;
 }
 .bar h1 {
   flex: 1;
@@ -584,10 +625,13 @@ h2 {
   gap: 4px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-soft);
+  color: var(--on-navy);
+  background: var(--navy-2);
   padding: 6px 12px;
   border-radius: 999px;
+}
+.streak-pill svg {
+  color: var(--focus);
 }
 .empty {
   color: var(--muted);
@@ -605,7 +649,7 @@ h2 {
 .sessions > li {
   background: var(--card);
   border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(15, 39, 71, 0.08);
   overflow: hidden;
 }
 .sessions .ex-list {
@@ -625,6 +669,7 @@ h2 {
   display: flex;
   flex-direction: column;
   font-weight: 650;
+  color: var(--navy);
 }
 .session-date small,
 .session-count small {
