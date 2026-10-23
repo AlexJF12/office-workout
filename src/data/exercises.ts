@@ -1,7 +1,7 @@
 import type { Animation } from '../figure/Figure';
 import { FLOOR, pose, type Keyframe, type PoseInput } from '../figure/rig';
 
-export type Area = 'Neck' | 'Shoulders' | 'Upper back' | 'Back' | 'Wrists' | 'Hips' | 'Legs';
+export type Area = 'Neck' | 'Shoulders' | 'Arms' | 'Upper back' | 'Back' | 'Wrists' | 'Hips' | 'Legs';
 
 export type Dose =
   /** hold for `seconds`, once or on each side */
@@ -90,6 +90,46 @@ const SRC = {
     name: 'Benenden Health',
     url: 'https://www.benenden.co.uk/be-healthy/work/5-exercises-at-your-desk/',
   },
+  jhu: {
+    name: 'Johns Hopkins HealthCare Solutions',
+    url: 'https://www.johnshopkinssolutions.com/wp-content/uploads/2024/06/Johns-Hopkins-Solutions_Desk-Exercises_NoURL-v031623.pdf',
+  },
+  nyc: {
+    name: 'NYC worksite wellness',
+    url: 'https://www.nyc.gov/assets/olr/downloads/pdf/wellness/nycp-fitness-menu-worksite-wellness.pdf',
+  },
+  mayoBack: {
+    name: 'Mayo Clinic: lower back stretches',
+    url: 'https://www.mayoclinic.org/health/lower-back-stretches/MM00711',
+  },
+  mayoFab5: {
+    name: 'Mayo Clinic: Fab 5 office exercises',
+    url: 'https://newsnetwork.mayoclinic.org/discussion/mayo-clinic-minute-fab-5-exercises-to-get-you-moving/',
+  },
+  beaconMutual: {
+    name: 'Beacon Mutual: Stretch for Safety',
+    url: 'https://www.beaconmutual.com/assets/Stretch-For-Safety-Quick-Card.pdf',
+  },
+  beaconOrtho: {
+    name: 'Beacon Orthopaedics',
+    url: 'https://www.beaconortho.com/blog/five-exercises-to-do-in-the-workplace/',
+  },
+  pih: {
+    name: 'PIH Health',
+    url: 'https://pihhealth.org/wellness/articles/10-quick-exercises-to-do-at-your-desk',
+  },
+  truPace: {
+    name: 'TRU PACE (physical therapist)',
+    url: 'https://www.pace.trucare.org/?p=3146',
+  },
+  umich: {
+    name: 'Michigan Medicine: leg exercises',
+    url: 'https://www.med.umich.edu/1libr/Homecare/MVN/LEExerciseProgram.pdf',
+  },
+  griffin: {
+    name: 'Griffin Health',
+    url: 'https://www.griffinhealth.org/wp-content/uploads/2026/10/2025ActiveROMSheet.pdf',
+  },
 } satisfies Record<string, Source>;
 
 // ---------- reusable poses ----------
@@ -125,6 +165,12 @@ const STAND_FRONT: PoseInput = {
   legR: { a: 4 },
 };
 
+/** Seated, side view, both hands gripping the sides of the seat. */
+const GRIP_SEAT: PoseInput = {
+  armR: { ik: [100, 163], bend: -1 },
+  armL: { ik: [102, 163], bend: -1 },
+};
+
 /** Hand resting on the top of a chair back at x=128. */
 const HOLD_CHAIR = { kind: 'chair', x: 128 } as const;
 
@@ -147,7 +193,7 @@ function plank(phi: number, ax: number): PoseInput {
   };
 }
 
-// ---------- the 20 exercises ----------
+// ---------- the 30 exercises ----------
 
 export const EXERCISES: Exercise[] = [
   {
@@ -736,6 +782,298 @@ export const EXERCISES: Exercise[] = [
           },
           0.8,
           0.5,
+        ),
+      ],
+    },
+  },
+  {
+    id: 'seated-cat-cow',
+    name: 'Seated Cat-Cow',
+    area: 'Back',
+    why: 'Moves your whole spine through its range, easing the stiffness of holding one posture all day.',
+    steps: [
+      'Sit at the front of your chair, feet flat, hands on your thighs.',
+      'Breathe in: lift your chest and gaze, arching your back (cow).',
+      'Breathe out: round your back, drop your chin and pull your belly in (cat). Keep your hips and legs still.',
+    ],
+    dose: { kind: 'reps', reps: 10 },
+    sources: [SRC.jhu, SRC.nyc],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['upperTorso', 'lowerTorso'],
+      frames: [
+        kf([SIT, { x: 90, torso: 2, chest: -12, neck: -14, head: -6, armR: { ik: ['kneeR', -16, -8], bend: -1 }, armL: { ik: ['kneeL', -16, -8], bend: -1 } }], 1.3, 0.6),
+        kf([SIT, { x: 90, torso: 8, chest: 24, neck: 26, head: 8, sh: [4, 0], armR: { ik: ['kneeR', -12, -8], bend: -1 }, armL: { ik: ['kneeL', -12, -8], bend: -1 } }], 1.4, 0.7),
+      ],
+    },
+  },
+  {
+    id: 'overhead-reach',
+    name: 'Overhead Reach',
+    area: 'Back',
+    why: 'Lengthens your spine and the sides of your trunk, and opens your chest for a full, deep breath.',
+    steps: [
+      'Sit tall with both feet flat.',
+      'Interlace your fingers and press your palms up toward the ceiling.',
+      'Reach tall through your fingertips and breathe deeply. Hold, then lower your arms.',
+    ],
+    dose: { kind: 'reps', reps: 5, holdSeconds: 10 },
+    sources: [SRC.jhu],
+    anim: {
+      view: 'front',
+      props: [CHAIR_FRONT],
+      focus: ['upperTorso', 'upperArmL', 'upperArmR'],
+      frames: [
+        kf([SIT_FRONT], 1, 0.4),
+        kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 0.9, 0),
+        kf([SIT_FRONT, { armL: { ik: ['head', -1, -32], bend: 1, c: -25 }, armR: { ik: ['head', 1, -32], bend: -1, c: -25 } }], 0.9, 0.2),
+        kf([SIT_FRONT, { y: 150, sh: [0, 3], armL: { ik: ['head', -1, -40], bend: 1, c: -14 }, armR: { ik: ['head', 1, -40], bend: -1, c: -14 } }], 0.8, 2),
+        kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 1, 0),
+      ],
+    },
+  },
+  {
+    id: 'seated-knee-to-chest',
+    name: 'Seated Knee-to-Chest',
+    area: 'Hips',
+    why: 'Gently stretches the lower back and glutes, which stiffen after long stretches of sitting.',
+    steps: [
+      'Sit tall in a chair without wheels.',
+      'Lift one knee and hug it toward your chest with both hands behind the thigh.',
+      'Keep your back straight. Hold, then lower and switch legs.',
+    ],
+    dose: { kind: 'hold', seconds: 30, sides: 2 },
+    sources: [SRC.mayoBack, SRC.nyc],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['lowerTorso', 'thighR'],
+      frames: [
+        kf([SIT], 1, 0.4),
+        kf([SIT, { torso: 4, legR: { a: 140, b: 122 }, armR: { ik: ['kneeR', -6, 11], bend: -1 }, armL: { ik: ['kneeR', -8, 12], bend: -1 } }], 1.3, 2.2),
+      ],
+    },
+  },
+  {
+    id: 'upper-back-stretch',
+    name: 'Upper Back Stretch',
+    area: 'Upper back',
+    why: 'Spreads the shoulder blades apart to release the muscles between them.',
+    steps: [
+      'Sit tall and clasp your hands in front of you at shoulder height.',
+      'Push your hands away, rounding your upper back and letting your head drop gently.',
+      'Feel the stretch between your shoulder blades. Hold, then sit back up.',
+    ],
+    dose: { kind: 'hold', seconds: 20, sides: 1 },
+    sources: [SRC.beaconMutual],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['upperTorso'],
+      frames: [
+        kf([SIT, { armR: { a: 90, b: 4, c: 0 }, armL: { a: 90, b: 4, c: 0 } }], 1.1, 0.5),
+        kf([SIT, { torso: 2, chest: 20, neck: 22, sh: [6, 0], armR: { a: 104, b: 0, c: 0 }, armL: { a: 104, b: 0, c: 0 } }], 1.3, 2),
+      ],
+    },
+  },
+  {
+    id: 'seated-marching',
+    name: 'Seated Marching',
+    area: 'Hips',
+    why: 'Works the hip flexors and gets your blood moving without leaving your chair.',
+    steps: [
+      'Sit tall at the front of your chair and hold the sides of the seat.',
+      'Lift one knee toward the ceiling, lower it, then lift the other.',
+      'Keep a steady pace and don’t lean back.',
+    ],
+    dose: { kind: 'phases', phases: [{ label: 'March', seconds: 45 }] },
+    sources: [SRC.truPace, SRC.umich],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['thighL', 'thighR'],
+      frames: [
+        kf([SIT, GRIP_SEAT, { torso: 0 }], 0.5, 0),
+        kf([SIT, GRIP_SEAT, { torso: 0, legR: { a: 122, b: 112 } }], 0.5, 0.15),
+        kf([SIT, GRIP_SEAT, { torso: 0 }], 0.5, 0),
+        kf([SIT, GRIP_SEAT, { torso: 0, legL: { a: 122, b: 112 } }], 0.5, 0.15),
+      ],
+    },
+  },
+  {
+    id: 'seated-knee-extension',
+    name: 'Seated Knee Extensions',
+    area: 'Legs',
+    why: 'Strengthens the quads, which barely work while you sit, to keep your knees supported.',
+    steps: [
+      'Sit tall at the front of your chair and hold the sides of the seat.',
+      'Straighten one knee until the leg is level, toes pointing up, and squeeze your thigh.',
+      'Hold, lower slowly, and alternate legs each rep.',
+    ],
+    dose: { kind: 'reps', reps: 10, holdSeconds: 5 },
+    sources: [SRC.truPace, SRC.griffin],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['thighR'],
+      frames: [
+        kf([SIT, GRIP_SEAT, { torso: 0 }], 1, 0.5),
+        kf([SIT, GRIP_SEAT, { torso: 0, legR: { a: 92, b: 0, c: -6 } }], 1.1, 1.6),
+      ],
+    },
+  },
+  {
+    id: 'ankle-pumps',
+    name: 'Ankle Pumps',
+    area: 'Legs',
+    why: 'Each pump squeezes your calf muscles, which push blood back up from your feet and ease swollen ankles.',
+    steps: [
+      'Sit tall and stretch your legs out in front, heels on the floor.',
+      'Pull your toes up toward your shins.',
+      'Then point them away from you. Keep a slow, steady rhythm.',
+    ],
+    dose: { kind: 'reps', reps: 20 },
+    sources: [SRC.truPace],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['shinL', 'shinR'],
+      frames: [
+        kf([SIT, { x: 100, torso: 0, legR: { a: 62, b: 0, c: 22 }, legL: { a: 60, b: 0, c: 22 }, armR: { ik: [114, 166], bend: -1 }, armL: { ik: [116, 166], bend: -1 } }], 0.7, 0.3),
+        kf([SIT, { x: 100, torso: 0, legR: { a: 62, b: 0, c: -60 }, legL: { a: 60, b: 0, c: -60 }, armR: { ik: [114, 166], bend: -1 }, armL: { ik: [116, 166], bend: -1 } }], 0.7, 0.3),
+      ],
+    },
+  },
+  {
+    id: 'wall-sit',
+    name: 'Wall Sit',
+    area: 'Legs',
+    why: 'Builds strength and endurance in your thighs and glutes with no equipment at all.',
+    steps: [
+      'Stand with your back flat against a wall, feet about two feet out in front.',
+      'Slide down until your knees are bent close to 90°, knees over your ankles.',
+      'Hold, keeping your back on the wall, then slide back up.',
+    ],
+    dose: { kind: 'hold', seconds: 30, sides: 1 },
+    sources: [SRC.beaconOrtho, SRC.pih, SRC.jhu],
+    anim: {
+      view: 'side',
+      props: [{ kind: 'wall', x: 62 }],
+      focus: ['thighR', 'thighL'],
+      frames: [
+        kf(
+          {
+            x: 72,
+            y: 131,
+            legR: { ik: [117, FLOOR - 5], bend: 1 },
+            legL: { ik: [115, FLOOR - 5], bend: 1 },
+            armR: { a: 4, b: 6 },
+            armL: { a: 4, b: 6 },
+          },
+          1.2,
+          0.6,
+        ),
+        kf(
+          {
+            x: 72,
+            y: 161,
+            legR: { ik: [117, FLOOR - 5], bend: 1 },
+            legL: { ik: [115, FLOOR - 5], bend: 1 },
+            armR: { ik: ['kneeR', -12, -8], bend: -1 },
+            armL: { ik: ['kneeL', -14, -8], bend: -1 },
+          },
+          1.6,
+          2.6,
+        ),
+      ],
+    },
+  },
+  {
+    id: 'chair-dips',
+    name: 'Chair Triceps Dips',
+    area: 'Arms',
+    why: 'Strengthens the backs of your arms and your shoulders using just a sturdy chair.',
+    steps: [
+      'Use a sturdy chair without wheels. Sit on the edge, hands gripping the front of the seat beside your hips.',
+      'Walk your feet out and slide your hips off the seat, knees bent.',
+      'Bend your elbows straight back to lower your hips, then press back up.',
+    ],
+    dose: { kind: 'reps', reps: 10 },
+    sources: [SRC.beaconOrtho, SRC.pih, SRC.jhu],
+    anim: {
+      view: 'side',
+      props: [CHAIR],
+      focus: ['upperArmR', 'upperArmL'],
+      frames: [
+        kf(
+          {
+            x: 132,
+            y: 160,
+            torso: -6,
+            legR: { ik: [178, FLOOR - 5], bend: 1 },
+            legL: { ik: [176, FLOOR - 5], bend: 1 },
+            armR: { ik: [120, 166], bend: -1, c: 80 },
+            armL: { ik: [118, 166], bend: -1, c: 80 },
+          },
+          0.9,
+          0.3,
+        ),
+        kf(
+          {
+            x: 130,
+            y: 184,
+            torso: -6,
+            legR: { ik: [178, FLOOR - 5], bend: 1 },
+            legL: { ik: [176, FLOOR - 5], bend: 1 },
+            armR: { ik: [120, 166], bend: -1, c: 80 },
+            armL: { ik: [118, 166], bend: -1, c: 80 },
+          },
+          1,
+          0.2,
+        ),
+      ],
+    },
+  },
+  {
+    id: 'stationary-lunges',
+    name: 'Stationary Lunges',
+    area: 'Legs',
+    why: 'Strengthens your glutes and legs and stretches the hip of the back leg, all in one move.',
+    steps: [
+      'Stand in a long split stance, one foot forward and the back heel lifted.',
+      'Lower straight down until both knees bend to about 90°. Keep your front knee over your ankle.',
+      'Push through the front heel to rise. Do all your reps, then switch legs.',
+    ],
+    dose: { kind: 'reps', reps: 10, perSide: true },
+    sources: [SRC.beaconOrtho, SRC.mayoFab5],
+    anim: {
+      view: 'side',
+      focus: ['thighR'],
+      frames: [
+        kf(
+          {
+            x: 96,
+            y: 132,
+            legR: { ik: [136, FLOOR - 5], bend: 1 },
+            legL: { ik: [40, 192], bend: 1, c: 6 },
+            armR: { ik: ['pelvis', 6, -16], bend: 1 },
+            armL: { ik: ['pelvis', 6, -16], bend: 1 },
+          },
+          1,
+          0.3,
+        ),
+        kf(
+          {
+            x: 92,
+            y: 154,
+            legR: { ik: [136, FLOOR - 5], bend: 1 },
+            legL: { ik: [34, 198], bend: 1, c: 55 },
+            armR: { ik: ['pelvis', 6, -16], bend: 1 },
+            armL: { ik: ['pelvis', 6, -16], bend: 1 },
+          },
+          1.1,
+          0.3,
         ),
       ],
     },
