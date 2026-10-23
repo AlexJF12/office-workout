@@ -129,6 +129,7 @@ export function doseLabel(dose: Dose): string {
     case 'phases':
       return `${totalSeconds(dose.phases)}s guided`;
     case 'reps':
-      return dose.holdSeconds ? `${dose.reps} reps · ${dose.holdSeconds}s hold` : `${dose.reps} reps`;
+      if (dose.holdSeconds) return `${dose.reps} reps · ${dose.holdSeconds}s hold`;
+      return dose.perSide ? `${dose.reps} reps each side` : `${dose.reps} reps`;
   }
 }

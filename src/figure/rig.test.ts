@@ -19,9 +19,9 @@ describe('rig', () => {
 });
 
 describe('exercises', () => {
-  it('has 20 unique exercises with steps and sources', () => {
-    expect(EXERCISES).toHaveLength(20);
-    expect(new Set(EXERCISES.map((e) => e.id)).size).toBe(20);
+  it('has 30 unique exercises with steps and sources', () => {
+    expect(EXERCISES).toHaveLength(30);
+    expect(new Set(EXERCISES.map((e) => e.id)).size).toBe(30);
     for (const e of EXERCISES) {
       expect(e.steps.length).toBeGreaterThan(0);
       expect(e.sources.length).toBeGreaterThan(0);

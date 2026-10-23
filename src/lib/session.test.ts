@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isFinished, newSession, SESSION_GOAL, phasesFor, record, streak, toHistory, totalSeconds, undo, type HistoryEntry } from './session';
+import { doseLabel, isFinished, newSession, SESSION_GOAL, phasesFor, record, streak, toHistory, totalSeconds, undo, type HistoryEntry } from './session';
 
 const ids = ['a', 'b', 'c'];
 
@@ -77,5 +77,8 @@ describe('timer phases', () => {
   });
   it('has no timer for plain reps', () => {
     expect(phasesFor({ kind: 'reps', reps: 10 })).toBeNull();
+  });
+  it('labels per-side reps', () => {
+    expect(doseLabel({ kind: 'reps', reps: 10, perSide: true })).toBe('10 reps each side');
   });
 });
