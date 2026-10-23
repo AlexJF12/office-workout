@@ -4,7 +4,8 @@ A mobile-friendly web app with 20 swipeable cards of stretches and moves that ph
 recommend for people who sit at a desk all day.
 
 - **Swipe right** (or tap ✓) when you've done a move, **swipe left** (or ✕) to skip. Arrow keys work on desktop.
-- Each session shuffles all 20 cards. Undo is there if you swipe by mistake.
+- Each session shuffles all 20 cards and ends once you've **done 5** of them (skips don't count). Undo is there if
+  you swipe by mistake.
 - Every card has an **animated figure** demonstrating the move, with the working muscles highlighted.
 - Timed moves (holds, per-side stretches, held reps) have a **built-in timer** that chimes and vibrates at each
   "switch sides" / "relax" / "done".

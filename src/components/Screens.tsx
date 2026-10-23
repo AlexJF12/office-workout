@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { EXERCISES } from '../data/exercises';
 import { EXERCISE_BY_ID } from '../data/lookup';
 import { Figure } from '../figure/Figure';
-import { streak, type HistoryEntry, type Session } from '../lib/session';
+import { doneCount, SESSION_GOAL, streak, type HistoryEntry, type Session } from '../lib/session';
 import { Icon } from './Icon';
 
 const HERO = EXERCISES.find((e) => e.id === 'wall-angels')!.anim;
@@ -32,8 +32,8 @@ export function Home({
         </div>
         <h1>Office Workout</h1>
         <p className="lede">
-          {EXERCISES.length} quick stretches and moves that physical therapists recommend for people who sit all day.
-          Swipe right when you’ve done one, left to skip.
+          Do {SESSION_GOAL} quick moves from a shuffled deck of {EXERCISES.length} stretches that physical therapists
+          recommend for people who sit all day. Swipe right when you’ve done one, left to skip.
         </p>
       </div>
 
@@ -58,10 +58,10 @@ export function Home({
         {resumable ? (
           <>
             <button className="btn btn-big btn-accent" onClick={onResume}>
-              Resume · card {resumable.results.length + 1} of {resumable.order.length}
+              Resume · {doneCount(resumable)} of {SESSION_GOAL} done
             </button>
             <button className="btn btn-big btn-ghost" onClick={onFinish}>
-              Finish &amp; save ({resumable.results.filter((r) => r.result === 'done').length} done)
+              Finish &amp; save ({doneCount(resumable)} done)
             </button>
             <button className="btn btn-link" onClick={onStart}>
               Discard and start a fresh shuffle
@@ -87,14 +87,13 @@ export function Home({
 
 export function Summary({ entry, onAgain, onHome }: { entry: HistoryEntry; onAgain: () => void; onHome: () => void }) {
   const n = entry.done.length;
-  const total = n + entry.skipped.length;
-  const headline = n === 0 ? 'Maybe next time' : n >= total * 0.75 ? 'Great session!' : 'Nice work!';
+  const headline = n === 0 ? 'Maybe next time' : n >= SESSION_GOAL ? 'Great session!' : 'Nice work!';
   return (
     <div className="screen summary">
       <div className="band summary-head">
         <div className="big-count">
           <span>{n}</span>
-          <small>/ {total}</small>
+          <small>/ {SESSION_GOAL}</small>
         </div>
         <h1>{headline}</h1>
         <p className="lede">

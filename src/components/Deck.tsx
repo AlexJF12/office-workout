@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { EXERCISE_BY_ID } from '../data/lookup';
-import { currentId, position, type Result, type Session } from '../lib/session';
+import { currentId, doneCount, position, SESSION_GOAL, type Result, type Session } from '../lib/session';
 import { ExerciseCard } from './ExerciseCard';
 import { Icon } from './Icon';
 import { SwipeCard, type SwipeDir, type SwipeHandle } from './SwipeCard';
@@ -16,8 +16,8 @@ export function Deck({ session, onResult, onUndo, onEnd }: Props) {
   const top = useRef<SwipeHandle>(null);
   const id = currentId(session);
   const nextId = session.order[position(session) + 1];
-  const done = session.results.filter((r) => r.result === 'done').length;
-  const total = session.order.length;
+  const done = doneCount(session);
+  const skipped = position(session) - done;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -38,20 +38,17 @@ export function Deck({ session, onResult, onUndo, onEnd }: Props) {
         <button className="icon-btn" onClick={onEnd} aria-label="End session">
           <Icon name="close" />
         </button>
-        <div className="progress" aria-label={`${position(session)} of ${total} cards`}>
+        <div className="progress" aria-label={`${done} of ${SESSION_GOAL} moves done`}>
           <div className="progress-text">
-            <span>
-              {Math.min(position(session) + 1, total)} / {total}
-            </span>
             <span className="progress-done">
-              <Icon name="check" size={14} /> {done} done
+              <Icon name="check" size={14} /> {done} / {SESSION_GOAL} done
             </span>
+            {skipped > 0 && <span className="progress-skipped">{skipped} skipped</span>}
           </div>
           <div className="progress-bar">
-            {session.order.map((oid, i) => {
-              const r = session.results[i]?.result;
-              return <span key={oid} className={r ?? (i === position(session) ? 'current' : '')} />;
-            })}
+            {Array.from({ length: SESSION_GOAL }, (_, i) => (
+              <span key={i} className={i < done ? 'done' : i === done ? 'current' : ''} />
+            ))}
           </div>
         </div>
       </header>
