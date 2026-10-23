@@ -31,8 +31,12 @@ export function newSession(ids: readonly string[], now = Date.now(), rand: () =>
   return { id: `${now.toString(36)}-${Math.floor(rand() * 1e6).toString(36)}`, startedAt: now, order: shuffle(ids, rand), results: [] };
 }
 
+/** A session ends once this many moves are done (or the deck runs out from skipping). */
+export const SESSION_GOAL = 5;
+
 export const position = (s: Session) => s.results.length;
-export const isFinished = (s: Session) => s.results.length >= s.order.length;
+export const doneCount = (s: Session) => s.results.filter((r) => r.result === 'done').length;
+export const isFinished = (s: Session) => doneCount(s) >= SESSION_GOAL || s.results.length >= s.order.length;
 export const currentId = (s: Session): string | undefined => s.order[s.results.length];
 
 export function record(s: Session, result: Result): Session {

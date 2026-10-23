@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isFinished, newSession, phasesFor, record, streak, toHistory, totalSeconds, undo, type HistoryEntry } from './session';
+import { isFinished, newSession, SESSION_GOAL, phasesFor, record, streak, toHistory, totalSeconds, undo, type HistoryEntry } from './session';
 
 const ids = ['a', 'b', 'c'];
 
@@ -20,6 +20,26 @@ describe('session', () => {
     const h = toHistory(s, 10);
     expect(h.done).toEqual([s.order[0], s.order[2]]);
     expect(h.skipped).toEqual([s.order[1]]);
+  });
+});
+
+describe('session goal', () => {
+  const many = Array.from({ length: 20 }, (_, i) => `e${i}`);
+
+  it(`ends after ${SESSION_GOAL} done, however many were skipped`, () => {
+    let s = newSession(many);
+    for (let i = 0; i < 3; i++) s = record(s, 'skipped');
+    for (let i = 0; i < SESSION_GOAL - 1; i++) s = record(s, 'done');
+    expect(isFinished(s)).toBe(false);
+    s = record(s, 'done');
+    expect(isFinished(s)).toBe(true);
+    expect(toHistory(s).done).toHaveLength(SESSION_GOAL);
+  });
+
+  it('ends when the deck runs out from skipping', () => {
+    let s = newSession(many);
+    for (let i = 0; i < many.length; i++) s = record(s, 'skipped');
+    expect(isFinished(s)).toBe(true);
   });
 });
 

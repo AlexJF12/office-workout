@@ -263,6 +263,9 @@ h2 {
   align-items: center;
   gap: 3px;
 }
+.progress-skipped {
+  color: var(--on-navy-muted);
+}
 .progress-bar {
   display: flex;
   gap: 3px;
