@@ -41,7 +41,7 @@ export function Deck({ session, onResult, onUndo, onEnd }: Props) {
         <div className="progress" aria-label={`${done} of ${SESSION_GOAL} moves done`}>
           <div className="progress-text">
             <span className="progress-done">
-              <Icon name="check" size={14} /> {done} / {SESSION_GOAL} done
+              {done > 0 && <Icon name="check" size={14} />} {done} / {SESSION_GOAL} done
             </span>
             {skipped > 0 && <span className="progress-skipped">{skipped} skipped</span>}
           </div>

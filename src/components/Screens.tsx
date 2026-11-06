@@ -13,6 +13,7 @@ export function Home({
   onStart,
   onResume,
   onFinish,
+  onDiscard,
   onHistory,
 }: {
   history: HistoryEntry[];
@@ -20,6 +21,7 @@ export function Home({
   onStart: () => void;
   onResume: () => void;
   onFinish: () => void;
+  onDiscard: () => void;
   onHistory: () => void;
 }) {
   const days = streak(history);
@@ -63,8 +65,8 @@ export function Home({
             <button className="btn btn-big btn-ghost" onClick={onFinish}>
               Finish &amp; save ({doneCount(resumable)} done)
             </button>
-            <button className="btn btn-link" onClick={onStart}>
-              Discard and start a fresh shuffle
+            <button className="btn btn-link" onClick={onDiscard}>
+              Discard session
             </button>
           </>
         ) : (
@@ -85,7 +87,18 @@ export function Home({
   );
 }
 
-export function Summary({ entry, onAgain, onHome }: { entry: HistoryEntry; onAgain: () => void; onHome: () => void }) {
+export function Summary({
+  entry,
+  streak: days,
+  onAgain,
+  onHome,
+}: {
+  entry: HistoryEntry;
+  /** current day streak, including this session */
+  streak: number;
+  onAgain: () => void;
+  onHome: () => void;
+}) {
   const n = entry.done.length;
   const headline = n === 0 ? 'Maybe next time' : n >= SESSION_GOAL ? 'Great session!' : 'Nice work!';
   return (
@@ -100,6 +113,11 @@ export function Summary({ entry, onAgain, onHome }: { entry: HistoryEntry; onAga
           You did {n} {n === 1 ? 'move' : 'moves'}
           {entry.skipped.length ? ` and skipped ${entry.skipped.length}` : ''}.
         </p>
+        {days > 0 && (
+          <p className="summary-streak">
+            <Icon name="flame" size={16} /> {days}-day streak
+          </p>
+        )}
       </div>
       <ExerciseList entry={entry} />
       <div className="home-actions">

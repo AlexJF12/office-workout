@@ -54,9 +54,7 @@ export function ExerciseCard({ ex, active }: { ex: Exercise; active: boolean }) 
         {phases ? (
           active ? <Timer phases={phases} summary={doseLabel(ex.dose)} onState={onTimer} /> : <div className="timer placeholder" />
         ) : (
-          <div className="reps-note">
-            <strong>{doseLabel(ex.dose)}</strong> at your own pace, then swipe right.
-          </div>
+          <div className="reps-note">At your own pace, then swipe right.</div>
         )}
       </div>
     </div>

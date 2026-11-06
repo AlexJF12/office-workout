@@ -97,8 +97,8 @@ export function Timer({
           strokeDashoffset={C * (1 - progress)}
           transform="rotate(-90 32 32)"
         />
-        <text x="32" y="33" textAnchor="middle" dominantBaseline="middle" className="ring-text">
-          {status === 'finished' ? '✓' : status === 'idle' ? total : phaseLeft}
+        <text x="32" y="33" textAnchor="middle" dominantBaseline="middle" className={`ring-text${(status === 'idle' ? total : phaseLeft) >= 60 ? ' long' : ''}`}>
+          {status === 'finished' ? '✓' : clock(status === 'idle' ? total : phaseLeft)}
         </text>
       </svg>
       <div className="timer-info" aria-live="polite">
@@ -130,6 +130,12 @@ export function Timer({
       </div>
     </div>
   );
+}
+
+/** 45 → "45s", 65 → "1:05". */
+export function clock(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 function phaseIndex(phases: Phase[], elapsed: number): number {
