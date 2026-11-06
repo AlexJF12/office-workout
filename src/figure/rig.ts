@@ -54,6 +54,8 @@ export interface Limb {
   bend?: 1 | -1;
   /** foreshortening of the upper segment (front view thighs etc.) */
   s?: number;
+  /** foreshortening of the lower segment (e.g. a shin crossing the body, seen from the side) */
+  s2?: number;
 }
 
 export interface Pose {
@@ -160,6 +162,8 @@ export interface Solved {
   head: Vec;
   headAngle: number;
   turn: number;
+  /** front view trunk rotation (-1..1) */
+  twist: number;
   armL: Chain;
   armR: Chain;
   legL: Chain;
@@ -210,13 +214,13 @@ export function solve(p: Pose, view: View): Solved {
     let ankle: Vec;
     let shinAng: number;
     if (l.ik) {
-      [knee, ankle] = solveIK(hip, target(l), LEN.thigh * (l.s ?? 1), LEN.shin, (l.bend ?? 1) as 1 | -1);
+      [knee, ankle] = solveIK(hip, target(l), LEN.thigh * (l.s ?? 1), LEN.shin * (l.s2 ?? 1), (l.bend ?? 1) as 1 | -1);
       shinAng = angleOf([ankle[0] - knee[0], ankle[1] - knee[1]]);
     } else {
       const thighAng = m * (l.a ?? 0);
       knee = add(hip, dir(thighAng), LEN.thigh * (l.s ?? 1));
       shinAng = thighAng - m * (l.b ?? 0);
-      ankle = add(knee, dir(shinAng), LEN.shin);
+      ankle = add(knee, dir(shinAng), LEN.shin * (l.s2 ?? 1));
     }
     const footAng = front ? shinAng + m * 70 : shinAng + 90 + (l.c ?? 0);
     const tip = add(ankle, dir(footAng), front ? 6 : LEN.foot);
@@ -255,7 +259,7 @@ export function solve(p: Pose, view: View): Solved {
   anchors.handR = armR.tip;
   const armL = arm(p.armL, shL, front);
 
-  return { pelvis, waist, shoulders, neckTop, head, headAngle, turn: p.turn + p.twist, armL, armR, legL, legR };
+  return { pelvis, waist, shoulders, neckTop, head, headAngle, turn: p.turn + p.twist, twist: p.twist, armL, armR, legL, legR };
 }
 
 // ---------- animation ----------
@@ -282,6 +286,7 @@ function lerpLimb(a: Limb, b: Limb, t: number): Limb {
       bend: t < 0.5 ? (a.bend ?? b.bend) : (b.bend ?? a.bend),
       c: lerp(a.c ?? 0, b.c ?? 0, t),
       s: lerp(a.s ?? 1, b.s ?? 1, t),
+      s2: lerp(a.s2 ?? 1, b.s2 ?? 1, t),
     };
   }
   return {
@@ -289,6 +294,7 @@ function lerpLimb(a: Limb, b: Limb, t: number): Limb {
     b: lerp(a.b ?? 0, b.b ?? 0, t),
     c: lerp(a.c ?? 0, b.c ?? 0, t),
     s: lerp(a.s ?? 1, b.s ?? 1, t),
+    s2: lerp(a.s2 ?? 1, b.s2 ?? 1, t),
   };
 }
 
@@ -367,6 +373,7 @@ export function lerpSolved(a: Solved, b: Solved, t: number): Solved {
     head: lerpVec(a.head, b.head, t),
     headAngle: lerp(a.headAngle, b.headAngle, t),
     turn: lerp(a.turn, b.turn, t),
+    twist: lerp(a.twist, b.twist, t),
     armL: lerpChain(a.armL, b.armL, t),
     armR: lerpChain(a.armR, b.armR, t),
     legL: lerpChain(a.legL, b.legL, t),

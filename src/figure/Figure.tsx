@@ -21,6 +21,8 @@ import './figure.css';
 
 export type BodyPart =
   | 'neck'
+  /** the line across the shoulders (front view) */
+  | 'shoulders'
   | 'upperTorso'
   | 'lowerTorso'
   | 'upperArmL'
@@ -46,6 +48,10 @@ export interface Animation {
   work?: number;
   /** one entry per guided-timer phase, when the defaults (hold → work, relax → rest) aren't right */
   phasePoses?: PhasePose[];
+  /** draw hands bigger, for moves where the hand position is the point */
+  handScale?: number;
+  /** a fixed close-up [x, y, width, height] instead of the automatic full-body framing */
+  zoom?: [number, number, number, number];
 }
 
 const pt = (v: Vec) => `${v[0].toFixed(1)} ${v[1].toFixed(1)}`;
@@ -197,17 +203,25 @@ export function Figure({ anim, playing, still, target, paused = false, holdPrevi
   shown.current = s;
 
   const mirror = !!target?.mirror;
+  const box = viewBoxFor(anim);
+  // Flip around the middle of what's on screen, so a close-up stays in frame.
+  const [bx, , bw] = box.split(' ').map(Number);
+  const mirrorX = bx + bw / 2;
   const focus = new Set<string>(anim.focus ?? []);
   const side = anim.view === 'side';
   const cls = (part: string, far = false) => `seg${focus.has(part) ? ' focus' : ''}${far ? ' far' : ''}`;
 
-  const arm = (c: Chain, k: 'L' | 'R', far: boolean) => (
-    <g key={`arm${k}`}>
-      <line className={cls(`upperArm${k}`, far)} x1={c.root[0]} y1={c.root[1]} x2={c.mid[0]} y2={c.mid[1]} strokeWidth={9} />
-      <line className={cls(`forearm${k}`, far)} x1={c.mid[0]} y1={c.mid[1]} x2={c.end[0]} y2={c.end[1]} strokeWidth={8} />
-      <line className={cls('hand', far)} x1={c.end[0]} y1={c.end[1]} x2={c.tip[0]} y2={c.tip[1]} strokeWidth={7} />
-    </g>
-  );
+  const hs = anim.handScale ?? 1;
+  const arm = (c: Chain, k: 'L' | 'R', far: boolean) => {
+    const tip: Vec = [c.end[0] + (c.tip[0] - c.end[0]) * hs, c.end[1] + (c.tip[1] - c.end[1]) * hs];
+    return (
+      <g key={`arm${k}`}>
+        <line className={cls(`upperArm${k}`, far)} x1={c.root[0]} y1={c.root[1]} x2={c.mid[0]} y2={c.mid[1]} strokeWidth={9} />
+        <line className={cls(`forearm${k}`, far)} x1={c.mid[0]} y1={c.mid[1]} x2={c.end[0]} y2={c.end[1]} strokeWidth={8} />
+        <line className={cls('hand', far)} x1={c.end[0]} y1={c.end[1]} x2={tip[0]} y2={tip[1]} strokeWidth={7 * Math.sqrt(hs)} />
+      </g>
+    );
+  };
   const leg_ = (c: Chain, k: 'L' | 'R', far: boolean) => (
     <g key={`leg${k}`}>
       {/* A thigh pointing at the viewer (seated, front view) is drawn short and thick, like it's coming toward you. */}
@@ -226,22 +240,49 @@ export function Figure({ anim, playing, still, target, paused = false, holdPrevi
 
   // In front view the wide chest stroke would hide the neck, so stop it short of the shoulders.
   const chestTop: Vec = side ? s.shoulders : [s.shoulders[0] + (s.waist[0] - s.shoulders[0]) * 0.3, s.shoulders[1] + (s.waist[1] - s.shoulders[1]) * 0.3];
+  // A turned trunk looks narrower from the front.
+  const narrow = side ? 1 : 1 - 0.25 * Math.abs(s.twist);
   const torso = (
     <g key="torso">
-      <line className={cls('lowerTorso')} x1={s.pelvis[0]} y1={s.pelvis[1]} x2={s.waist[0]} y2={s.waist[1]} strokeWidth={side ? 17 : 22} />
-      <line className={cls('upperTorso')} x1={s.waist[0]} y1={s.waist[1]} x2={chestTop[0]} y2={chestTop[1]} strokeWidth={side ? 19 : 26} />
+      <line className={cls('lowerTorso')} x1={s.pelvis[0]} y1={s.pelvis[1]} x2={s.waist[0]} y2={s.waist[1]} strokeWidth={side ? 17 : 22 * narrow} />
+      <line className={cls('upperTorso')} x1={s.waist[0]} y1={s.waist[1]} x2={chestTop[0]} y2={chestTop[1]} strokeWidth={side ? 19 : 26 * narrow} />
+      {/* Front view: a line through the shoulders so the arms (and neck) visibly hang off something. */}
+      {!side && (
+        <polyline
+          className={cls('shoulders')}
+          points={`${pt(s.armL.root)} ${pt(s.shoulders)} ${pt(s.armR.root)}`}
+          strokeWidth={10}
+          strokeLinejoin="round"
+        />
+      )}
       <line className={cls('neck')} x1={s.shoulders[0]} y1={s.shoulders[1]} x2={s.neckTop[0]} y2={s.neckTop[1]} strokeWidth={8} />
     </g>
   );
 
   const head = <Head key="head" at={s.head} angle={s.headAngle} turn={s.turn} side={side} />;
 
-  const layers = side
-    ? [arm(s.armL, 'L', true), leg_(s.legL, 'L', true), torso, head, leg_(s.legR, 'R', false), arm(s.armR, 'R', false)]
-    : [leg_(s.legL, 'L', false), leg_(s.legR, 'R', false), torso, head, arm(s.armL, 'L', false), arm(s.armR, 'R', false)];
+  let layers;
+  if (side) {
+    layers = [arm(s.armL, 'L', true), leg_(s.legL, 'L', true), torso, head, leg_(s.legR, 'R', false), arm(s.armR, 'R', false)];
+  } else {
+    // Front view. When the trunk turns, the arm on the side turning away goes pale and behind it.
+    const backArm = s.twist > 0.3 ? 'R' : s.twist < -0.3 ? 'L' : null;
+    const behind = backArm ? [arm(backArm === 'R' ? s.armR : s.armL, backArm, true)] : [];
+    // A hand holding the other arm is drawn last so it isn't hidden under that arm.
+    const front = (['L', 'R'] as const).filter((k) => k !== backArm);
+    if (helperArm(anim) === 'L') front.reverse();
+    layers = [
+      ...behind,
+      leg_(s.legL, 'L', false),
+      leg_(s.legR, 'R', false),
+      torso,
+      head,
+      ...front.map((k) => arm(k === 'L' ? s.armL : s.armR, k, false)),
+    ];
+  }
 
   return (
-    <svg viewBox={viewBoxFor(anim)} className="figure" aria-hidden="true">
+    <svg viewBox={box} className="figure" aria-hidden="true">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" className="arrowhead" />
@@ -249,13 +290,23 @@ export function Figure({ anim, playing, still, target, paused = false, holdPrevi
       </defs>
       <line className="floor" x1={8} y1={FLOOR} x2={192} y2={FLOOR} />
       {/* Switching sides flips the whole scene, like turning the card over. */}
-      <g className={`scene${mirror ? ' mirrored' : ''}`}>
+      <g className={`scene${mirror ? ' mirrored' : ''}`} style={{ transformOrigin: `${mirrorX}px 0` }}>
         {anim.props?.map((p, i) => <Prop key={i} spec={p} />)}
         {anim.hint && <path className="hint" d={anim.hint} />}
         {layers}
       </g>
     </svg>
   );
+}
+
+/** 'L' if the left arm ever holds the right arm (e.g. drawing an arm across the chest). */
+function helperArm(anim: Animation): 'L' | null {
+  return anim.frames.some((f) => {
+    const ik = f.pose.armL.ik;
+    return !!ik && (ik[0] === 'elbowR' || ik[0] === 'handR');
+  })
+    ? 'L'
+    : null;
 }
 
 // ---------- framing ----------
@@ -273,6 +324,11 @@ const boxes = new WeakMap<Animation, string>();
 export function viewBoxFor(anim: Animation): string {
   const hit = boxes.get(anim);
   if (hit) return hit;
+  if (anim.zoom) {
+    const z = anim.zoom.join(' ');
+    boxes.set(anim, z);
+    return z;
+  }
   let top = Infinity;
   let half = 0;
   const grow = (p: Vec, r: number) => {
@@ -307,7 +363,8 @@ function Head({ at, angle, turn, side }: { at: Vec; angle: number; turn: number;
   const noseX = side ? 10.5 : t * 10.5;
   return (
     <g transform={`translate(${pt(at)}) rotate(${angle.toFixed(1)})`}>
-      <circle className="seg head" r={LEN.headR} />
+      {/* a head turned toward profile looks a little narrower */}
+      <ellipse className="seg head" rx={LEN.headR * (side ? 1 : 1 - 0.12 * Math.abs(t))} ry={LEN.headR} />
       {eyes.map((x, i) => (
         <circle key={i} className="eye" cx={x} cy={-1.5} r={1.6} />
       ))}

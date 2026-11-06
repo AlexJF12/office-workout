@@ -14,14 +14,15 @@ export interface FigureTarget {
 /** The start pose: where the figure relaxes back to. */
 export const restFrame = (anim: Animation) => anim.rest ?? 0;
 
-/** The end pose: where the figure holds the stretch. Defaults to the keyframe held longest. */
+/** The end pose: where the figure holds the stretch. Defaults to the keyframe (other than the start) held longest. */
 export function workFrame(anim: Animation): number {
   if (anim.work !== undefined) return anim.work;
-  let best = 0;
+  const rest = restFrame(anim);
+  let best = -1;
   anim.frames.forEach((f, i) => {
-    if (f.hold > anim.frames[best].hold) best = i;
+    if (i !== rest && (best < 0 || f.hold > anim.frames[best].hold)) best = i;
   });
-  return best;
+  return best < 0 ? rest : best;
 }
 
 /** One figure target per timer phase. */
