@@ -88,6 +88,8 @@ export interface Phase {
   seconds: number;
   /** a short relax/switch gap rather than work */
   rest?: boolean;
+  /** for two-sided holds: which side this phase belongs to */
+  side?: 1 | 2;
 }
 
 const SWITCH_SECONDS = 5;
@@ -99,9 +101,9 @@ export function phasesFor(dose: Dose): Phase[] | null {
     case 'hold':
       if (dose.sides === 1) return [{ label: 'Hold', seconds: dose.seconds }];
       return [
-        { label: 'First side', seconds: dose.seconds },
-        { label: 'Switch sides', seconds: SWITCH_SECONDS, rest: true },
-        { label: 'Second side', seconds: dose.seconds },
+        { label: 'First side', seconds: dose.seconds, side: 1 },
+        { label: 'Switch sides', seconds: SWITCH_SECONDS, rest: true, side: 2 },
+        { label: 'Second side', seconds: dose.seconds, side: 2 },
       ];
     case 'phases':
       return dose.phases.map((p) => ({ ...p }));

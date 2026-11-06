@@ -2,10 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { totalSeconds, type Phase } from '../lib/session';
 import { beep, unlockAudio } from '../lib/sound';
 
-type Status = 'idle' | 'running' | 'paused' | 'finished';
+export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished';
+type Status = TimerStatus;
 
 /** Start/pause countdown that walks through each phase, chiming at every change. */
-export function Timer({ phases, summary }: { phases: Phase[]; summary: string }) {
+export function Timer({
+  phases,
+  summary,
+  onState,
+}: {
+  phases: Phase[];
+  summary: string;
+  /** told whenever the status or the current phase changes, so the figure can follow along */
+  onState?: (status: TimerStatus, phase: number) => void;
+}) {
   const [status, setStatus] = useState<Status>('idle');
   const [elapsed, setElapsed] = useState(0); // seconds into the whole sequence
   const startedAt = useRef(0);
@@ -62,6 +72,10 @@ export function Timer({ phases, summary }: { phases: Phase[]; summary: string })
 
   const idx = phaseIndex(phases, elapsed);
   const phase = phases[idx];
+
+  useEffect(() => {
+    onState?.(status, idx);
+  }, [status, idx, onState]);
   const phaseStart = phases.slice(0, idx).reduce((s, p) => s + p.seconds, 0);
   const phaseLeft = Math.max(0, Math.ceil(phase.seconds - (elapsed - phaseStart) - 1e-6));
   const progress = status === 'finished' ? 1 : (elapsed - phaseStart) / phase.seconds;

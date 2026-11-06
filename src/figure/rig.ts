@@ -330,3 +330,48 @@ export function sample(frames: Keyframe[], time: number): Pose {
   }
   return frames[0].pose;
 }
+
+/** When each keyframe is reached (`arrive`) and left (`depart`), in loop seconds. */
+export function frameTimes(frames: Keyframe[]): { arrive: number[]; depart: number[]; total: number } {
+  const arrive: number[] = [];
+  const depart: number[] = [];
+  let t = 0;
+  for (const f of frames) {
+    t += f.move;
+    arrive.push(t);
+    t += f.hold;
+    depart.push(t);
+  }
+  return { arrive, depart, total: t };
+}
+
+const lerpVec = (a: Vec, b: Vec, t: number): Vec => [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+const lerpChain = (a: Chain, b: Chain, t: number): Chain => ({
+  root: lerpVec(a.root, b.root, t),
+  mid: lerpVec(a.mid, b.mid, t),
+  end: lerpVec(a.end, b.end, t),
+  tip: lerpVec(a.tip, b.tip, t),
+});
+
+/**
+ * Blend two already-solved figures point by point. Used to ease from whatever
+ * is on screen into a new motion without the jumps that blending angle-driven
+ * and IK-driven limbs would cause.
+ */
+export function lerpSolved(a: Solved, b: Solved, t: number): Solved {
+  return {
+    pelvis: lerpVec(a.pelvis, b.pelvis, t),
+    waist: lerpVec(a.waist, b.waist, t),
+    shoulders: lerpVec(a.shoulders, b.shoulders, t),
+    neckTop: lerpVec(a.neckTop, b.neckTop, t),
+    head: lerpVec(a.head, b.head, t),
+    headAngle: lerp(a.headAngle, b.headAngle, t),
+    turn: lerp(a.turn, b.turn, t),
+    armL: lerpChain(a.armL, b.armL, t),
+    armR: lerpChain(a.armR, b.armR, t),
+    legL: lerpChain(a.legL, b.legL, t),
+    legR: lerpChain(a.legR, b.legR, t),
+  };
+}
+
+export { ease };

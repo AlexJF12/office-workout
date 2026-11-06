@@ -148,14 +148,14 @@ const SIT: PoseInput = {
 };
 const CHAIR = { kind: 'chair', x: 74 } as const;
 
-/** Seated, front view. */
+/** Seated, front view: thighs come toward you (foreshortened), knees a little apart, shins straight down. */
 const SIT_FRONT: PoseInput = {
   x: 100,
-  y: 152,
-  legL: { a: 12, b: 12, s: 0.22 },
-  legR: { a: 12, b: 12, s: 0.22 },
-  armL: { ik: ['kneeL', -1, -6], bend: -1 },
-  armR: { ik: ['kneeR', 1, -6], bend: 1 },
+  y: 149,
+  legL: { a: 26, b: 26, s: 0.32 },
+  legR: { a: 26, b: 26, s: 0.32 },
+  armL: { ik: ['kneeL', -3, -9], bend: -1 },
+  armR: { ik: ['kneeR', 3, -9], bend: 1 },
 };
 const CHAIR_FRONT = { kind: 'chairFront', x: 100 } as const;
 
@@ -255,6 +255,8 @@ export const EXERCISES: Exercise[] = [
       props: [CHAIR_FRONT],
       focus: ['neck'],
       hint: 'M80 58 Q100 48 120 58',
+      // first side: turned right (1); switch: back to center (2); second side: turned left (3)
+      phasePoses: [1, 2, 3],
       frames: [
         kf([SIT_FRONT], 0.8, 0.4),
         kf([SIT_FRONT, { turn: 0.95 }], 1, 1.4),
@@ -520,6 +522,8 @@ export const EXERCISES: Exercise[] = [
       view: 'side',
       props: [CHAIR],
       focus: ['forearmR'],
+      // palm out (fingers pulled back) is frame 3, palm down (wrist bent down) is frame 1; arm 2 is the mirror image
+      phasePoses: [3, 1, { frame: 3, mirror: true }, { frame: 1, mirror: true }],
       frames: [
         kf([SIT, { armR: { a: 86, b: 0, c: 0 }, armL: { ik: ['handR', -2, -2], bend: -1 } }], 0.8, 0.3),
         kf([SIT, { armR: { a: 86, b: 0, c: -80 }, armL: { ik: ['handR', 0, 0], bend: -1 } }], 0.9, 1.6),
@@ -828,7 +832,7 @@ export const EXERCISES: Exercise[] = [
         kf([SIT_FRONT], 1, 0.4),
         kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 0.9, 0),
         kf([SIT_FRONT, { armL: { ik: ['head', -1, -32], bend: 1, c: -25 }, armR: { ik: ['head', 1, -32], bend: -1, c: -25 } }], 0.9, 0.2),
-        kf([SIT_FRONT, { y: 150, sh: [0, 3], armL: { ik: ['head', -1, -40], bend: 1, c: -14 }, armR: { ik: ['head', 1, -40], bend: -1, c: -14 } }], 0.8, 2),
+        kf([SIT_FRONT, { y: 147, sh: [0, 3], armL: { ik: ['head', -1, -40], bend: 1, c: -14 }, armR: { ik: ['head', 1, -40], bend: -1, c: -14 } }], 0.8, 2),
         kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 1, 0),
       ],
     },
@@ -891,6 +895,8 @@ export const EXERCISES: Exercise[] = [
     sources: [SRC.truPace, SRC.umich],
     anim: {
       view: 'side',
+      // a continuous move: march along with the timer
+      phasePoses: ['loop'],
       props: [CHAIR],
       focus: ['thighL', 'thighR'],
       frames: [
