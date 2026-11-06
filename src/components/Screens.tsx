@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { EXERCISES } from '../data/exercises';
-import { EXERCISE_BY_ID } from '../data/lookup';
+import { exerciseName } from '../data/lookup';
 import { Figure } from '../figure/Figure';
 import { doneCount, SESSION_GOAL, streak, type HistoryEntry, type Session } from '../lib/session';
 import { Icon } from './Icon';
@@ -137,12 +137,12 @@ function ExerciseList({ entry }: { entry: HistoryEntry }) {
     <ul className="ex-list">
       {entry.done.map((id) => (
         <li key={id} className="done">
-          <Icon name="check" size={16} /> {EXERCISE_BY_ID[id]?.name ?? id}
+          <Icon name="check" size={16} /> {exerciseName(id)}
         </li>
       ))}
       {entry.skipped.map((id) => (
         <li key={id} className="skipped">
-          <Icon name="close" size={16} /> {EXERCISE_BY_ID[id]?.name ?? id}
+          <Icon name="close" size={16} /> {exerciseName(id)}
         </li>
       ))}
     </ul>

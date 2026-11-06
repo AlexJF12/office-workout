@@ -19,7 +19,7 @@ recommend for people who sit at a desk all day.
 | Neck       | Chin Tucks · Ear-to-Shoulder Stretch · Head Turns                                              |
 | Shoulders  | Shoulder Rolls · Doorway Chest Stretch · Cross-Body Shoulder Stretch                           |
 | Chest      | Desk Push-Ups                                                                                  |
-| Arms       | Chair Triceps Dips                                                                             |
+| Arms       | Desk Triceps Press                                                                             |
 | Upper back | Shoulder Blade Squeeze · Wall Angels · Chair Back Extension · Upper Back Stretch               |
 | Back       | Seated Spinal Twist · Standing Back Extension · Seated Cat-Cow · Overhead Reach                 |
 | Sides      | Standing Side Bend                                                                             |
