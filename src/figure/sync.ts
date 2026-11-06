@@ -33,12 +33,14 @@ export function phaseTargets(anim: Animation, phases: Phase[]): FigureTarget[] {
     if (pp === 'loop') return { frame: 'loop', mirror: false };
     if (typeof pp === 'number') return { frame: pp, mirror: false };
     if (pp) return { frame: pp.frame, mirror: !!pp.mirror };
-    return { frame: p.rest ? restFrame(anim) : workFrame(anim), mirror: p.side === 2 };
+    if (p.rest) return { frame: restFrame(anim), mirror: false };
+    if (p.side === 2 && anim.secondSide !== undefined) return { frame: anim.secondSide, mirror: false };
+    return { frame: workFrame(anim), mirror: p.side === 2 };
   });
   // A default rest phase takes the side of the phase after it, so the figure
   // flips to the other side while relaxing rather than mid-stretch.
   for (let i = out.length - 2; i >= 0; i--) {
-    if (phases[i].rest && explicit?.[i] === undefined) out[i].mirror = out[i + 1].mirror;
+    if (phases[i].rest && explicit?.[i] === undefined && anim.secondSide === undefined) out[i].mirror = out[i + 1].mirror;
   }
   return out;
 }

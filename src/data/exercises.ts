@@ -1,7 +1,7 @@
 import type { Animation } from '../figure/Figure';
 import { FLOOR, pose, type Keyframe, type PoseInput } from '../figure/rig';
 
-export type Area = 'Neck' | 'Shoulders' | 'Arms' | 'Upper back' | 'Back' | 'Wrists' | 'Hips' | 'Legs';
+export type Area = 'Neck' | 'Shoulders' | 'Chest' | 'Arms' | 'Upper back' | 'Back' | 'Sides' | 'Wrists' | 'Hips' | 'Legs';
 
 export type Dose =
   /** hold for `seconds`, once or on each side */
@@ -469,7 +469,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'standing-side-bend',
     name: 'Standing Side Bend',
-    area: 'Back',
+    area: 'Sides',
     why: 'Stretches the sides of your trunk and opens the ribs so you can breathe deeper.',
     steps: [
       'Stand tall, feet hip-width apart.',
@@ -552,7 +552,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'desk-push-ups',
     name: 'Desk Push-Ups',
-    area: 'Shoulders',
+    area: 'Chest',
     why: 'Strengthens chest, shoulders and arms without leaving your desk.',
     steps: [
       'Place your hands on the edge of a sturdy desk (not a rolling one), shoulder-width apart.',
@@ -927,15 +927,19 @@ export const EXERCISES: Exercise[] = [
       'Straighten one knee until the leg is level, toes pointing up, and squeeze your thigh.',
       'Hold, lower slowly, and alternate legs each rep.',
     ],
-    dose: { kind: 'reps', reps: 10, holdSeconds: 5 },
+    dose: { kind: 'reps', reps: 10, holdSeconds: 5, perSide: true },
     sources: [SRC.truPace, SRC.griffin],
     anim: {
       view: 'side',
       props: [CHAIR],
-      focus: ['thighR'],
+      focus: ['thighR', 'thighL'],
+      // legs alternate every rep, so side 2 is the far leg rather than a mirrored scene
+      secondSide: 3,
       frames: [
         kf([SIT, GRIP_SEAT, { torso: 0 }], 1, 0.5),
         kf([SIT, GRIP_SEAT, { torso: 0, legR: { a: 92, b: 0, c: -6 } }], 1.1, 1.6),
+        kf([SIT, GRIP_SEAT, { torso: 0 }], 1, 0.5),
+        kf([SIT, GRIP_SEAT, { torso: 0, legL: { a: 92, b: 0, c: -6 } }], 1.1, 1.6),
       ],
     },
   },

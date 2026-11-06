@@ -34,7 +34,7 @@ export function Home({
         </div>
         <h1>Office Workout</h1>
         <p className="lede">
-          Do {SESSION_GOAL} quick moves from a shuffled deck of {EXERCISES.length} stretches that physical therapists
+          Do {SESSION_GOAL} quick moves from a shuffled deck of {EXERCISES.length} moves that physical therapists
           recommend for people who sit all day. Swipe right when you’ve done one, left to skip.
         </p>
       </div>

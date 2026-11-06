@@ -17,10 +17,12 @@ recommend for people who sit at a desk all day.
 | Area       | Exercise                                                                                       |
 | ---------- | ---------------------------------------------------------------------------------------------- |
 | Neck       | Chin Tucks · Ear-to-Shoulder Stretch · Head Turns                                              |
-| Shoulders  | Shoulder Rolls · Doorway Chest Stretch · Cross-Body Shoulder Stretch · Desk Push-Ups           |
+| Shoulders  | Shoulder Rolls · Doorway Chest Stretch · Cross-Body Shoulder Stretch                           |
+| Chest      | Desk Push-Ups                                                                                  |
 | Arms       | Chair Triceps Dips                                                                             |
 | Upper back | Shoulder Blade Squeeze · Wall Angels · Chair Back Extension · Upper Back Stretch               |
-| Back       | Seated Spinal Twist · Standing Side Bend · Standing Back Extension · Seated Cat-Cow · Overhead Reach |
+| Back       | Seated Spinal Twist · Standing Back Extension · Seated Cat-Cow · Overhead Reach                 |
+| Sides      | Standing Side Bend                                                                             |
 | Wrists     | Wrist & Forearm Stretch                                                                        |
 | Hips       | Standing Hip Flexor Stretch · Seated Figure-4 Stretch · Seated Knee-to-Chest · Seated Marching |
 | Legs       | Chair Squats · Standing Quad Stretch · Seated Hamstring Stretch · Calf Raises · Seated Knee Extensions · Ankle Pumps · Wall Sit · Stationary Lunges |

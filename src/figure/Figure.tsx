@@ -48,6 +48,8 @@ export interface Animation {
   work?: number;
   /** one entry per guided-timer phase, when the defaults (hold → work, relax → rest) aren't right */
   phasePoses?: PhasePose[];
+  /** keyframe for the timer's second-side holds, instead of mirroring the whole scene (for sides that alternate every rep) */
+  secondSide?: number;
   /** draw hands bigger, for moves where the hand position is the point */
   handScale?: number;
   /** a fixed close-up [x, y, width, height] instead of the automatic full-body framing */
