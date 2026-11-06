@@ -452,7 +452,7 @@ h2 {
 .timer {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-height: 56px;
 }
 .timer-ring {
@@ -492,6 +492,8 @@ h2 {
 }
 .timer-label {
   font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
   color: var(--navy);
 }
 .timer.finished .timer-label {
@@ -506,7 +508,10 @@ h2 {
 }
 .timer-buttons {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+}
+.timer-buttons .btn-small {
+  padding: 8px 11px;
 }
 .timer-buttons .btn-ghost {
   box-shadow: inset 0 0 0 2px var(--line);

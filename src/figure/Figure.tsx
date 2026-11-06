@@ -127,7 +127,24 @@ function solvedAt(mode: Mode, anim: Animation, clock: number): Solved {
   return solve(breathe(frames[mode.then.hold].pose, t), view);
 }
 
-export function Figure({ anim, playing, still, target, paused = false, holdPreview = false }: Props) {
+/** True when the person has asked their system for less motion. */
+function useReducedMotion(): boolean {
+  const QUERY = '(prefers-reduced-motion: reduce)';
+  const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.(QUERY).matches);
+  useEffect(() => {
+    const q = window.matchMedia?.(QUERY);
+    if (!q) return;
+    const on = () => setReduced(q.matches);
+    q.addEventListener('change', on);
+    return () => q.removeEventListener('change', on);
+  }, []);
+  return reduced;
+}
+
+export function Figure({ anim, playing: wantsPlay, still, target, paused = false, holdPreview = false }: Props) {
+  // With reduced motion, nothing animates: the figure shows its end pose (or the timer's current pose) as a still.
+  const reduced = useReducedMotion();
+  const playing = wantsPlay && !reduced;
   const [, setTick] = useState(0);
   const clock = useRef(0);
   const mode = useRef<Mode | null>(null);
@@ -199,6 +216,9 @@ export function Figure({ anim, playing, still, target, paused = false, holdPrevi
   } else if (playing) {
     // First paint, before a motion is picked: the start pose.
     s = solve(anim.frames[restFrame(anim)].pose, anim.view);
+  } else if (reduced && wantsPlay) {
+    const f = target && target.frame !== 'loop' ? target.frame : workFrame(anim);
+    s = solve(anim.frames[f].pose, anim.view);
   } else {
     s = solve(sample(anim.frames, still ?? defaultStill(anim)), anim.view);
   }

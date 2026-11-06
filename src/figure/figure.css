@@ -55,3 +55,8 @@
 .figure .scene.mirrored {
   transform: scaleX(-1);
 }
+@media (prefers-reduced-motion: reduce) {
+  .figure .scene {
+    transition: none;
+  }
+}
