@@ -80,5 +80,27 @@ describe('timer phases', () => {
   });
   it('labels per-side reps', () => {
     expect(doseLabel({ kind: 'reps', reps: 10, perSide: true })).toBe('10 reps each side');
+    expect(doseLabel({ kind: 'reps', reps: 10, holdSeconds: 5, perSide: true })).toBe('10 reps each side');
+    expect(doseLabel({ kind: 'reps', reps: 10, holdSeconds: 5 })).toBe('10 reps · 5s hold');
+    expect(doseLabel({ kind: 'reps', reps: 10 })).toBe('10 reps');
+    expect(doseLabel({ kind: 'hold', seconds: 30, sides: 1 })).toBe('30s hold');
+    expect(doseLabel({ kind: 'hold', seconds: 30, sides: 2 })).toBe('30s each side');
+    const p = (s: number) => ({ label: 'x', seconds: s });
+    expect(doseLabel({ kind: 'phases', phases: [p(15), p(15), p(15), p(15)] })).toBe('4 × 15s');
+    expect(doseLabel({ kind: 'phases', phases: [p(45)] })).toBe('45s');
+  });
+
+  it('guides per-side held reps by alternating sides', () => {
+    const p = phasesFor({ kind: 'reps', reps: 3, holdSeconds: 5, perSide: true })!;
+    expect(p.filter((x) => !x.rest).map((x) => x.label)).toEqual([
+      'Side 1 · 1/3',
+      'Side 2 · 1/3',
+      'Side 1 · 2/3',
+      'Side 2 · 2/3',
+      'Side 1 · 3/3',
+      'Side 2 · 3/3',
+    ]);
+    expect(p.at(-1)!.rest).toBeFalsy();
+    expect(totalSeconds(p)).toBe(6 * 5 + 5 * 2);
   });
 });

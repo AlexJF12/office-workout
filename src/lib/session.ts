@@ -88,6 +88,8 @@ export interface Phase {
   seconds: number;
   /** a short relax/switch gap rather than work */
   rest?: boolean;
+  /** for two-sided holds: which side this phase belongs to */
+  side?: 1 | 2;
 }
 
 const SWITCH_SECONDS = 5;
@@ -99,18 +101,26 @@ export function phasesFor(dose: Dose): Phase[] | null {
     case 'hold':
       if (dose.sides === 1) return [{ label: 'Hold', seconds: dose.seconds }];
       return [
-        { label: 'First side', seconds: dose.seconds },
-        { label: 'Switch sides', seconds: SWITCH_SECONDS, rest: true },
-        { label: 'Second side', seconds: dose.seconds },
+        { label: 'First side', seconds: dose.seconds, side: 1 },
+        { label: 'Switch sides', seconds: SWITCH_SECONDS, rest: true, side: 2 },
+        { label: 'Second side', seconds: dose.seconds, side: 2 },
       ];
     case 'phases':
       return dose.phases.map((p) => ({ ...p }));
     case 'reps': {
       if (!dose.holdSeconds) return null;
       const out: Phase[] = [];
+      const relax = () => out.push({ label: 'Relax', seconds: REP_REST_SECONDS, rest: true });
       for (let i = 1; i <= dose.reps; i++) {
-        out.push({ label: `Hold · rep ${i}/${dose.reps}`, seconds: dose.holdSeconds });
-        if (i < dose.reps) out.push({ label: 'Relax', seconds: REP_REST_SECONDS, rest: true });
+        if (dose.perSide) {
+          // Alternate sides each rep: side 1, relax, side 2, relax, …
+          out.push({ label: `Side 1 · ${i}/${dose.reps}`, seconds: dose.holdSeconds, side: 1 });
+          relax();
+          out.push({ label: `Side 2 · ${i}/${dose.reps}`, seconds: dose.holdSeconds, side: 2 });
+        } else {
+          out.push({ label: `Hold · rep ${i}/${dose.reps}`, seconds: dose.holdSeconds });
+        }
+        if (i < dose.reps) relax();
       }
       return out;
     }
@@ -121,15 +131,23 @@ export function totalSeconds(phases: Phase[]): number {
   return phases.reduce((s, p) => s + p.seconds, 0);
 }
 
-/** Short human label for a dose, e.g. "30s each side" or "10 reps · 5s hold". */
+/**
+ * Short label for a dose, one scheme for every card:
+ * `10 reps`, `10 reps · 5s hold`, `10 reps each side`, `30s hold`, `30s each side`,
+ * and for custom sequences `4 × 15s` (equal phases) or the total, e.g. `45s`.
+ */
 export function doseLabel(dose: Dose): string {
   switch (dose.kind) {
     case 'hold':
       return dose.sides === 2 ? `${dose.seconds}s each side` : `${dose.seconds}s hold`;
-    case 'phases':
-      return `${totalSeconds(dose.phases)}s guided`;
+    case 'phases': {
+      const [first, ...rest] = dose.phases;
+      if (rest.length && rest.every((p) => p.seconds === first.seconds)) return `${dose.phases.length} × ${first.seconds}s`;
+      return `${totalSeconds(dose.phases)}s`;
+    }
     case 'reps':
+      if (dose.perSide) return `${dose.reps} reps each side`;
       if (dose.holdSeconds) return `${dose.reps} reps · ${dose.holdSeconds}s hold`;
-      return dose.perSide ? `${dose.reps} reps each side` : `${dose.reps} reps`;
+      return `${dose.reps} reps`;
   }
 }

@@ -17,6 +17,7 @@
 .figure .seg.focus.far {
   stroke: var(--focus-far);
 }
+.figure ellipse.head,
 .figure circle.head,
 .figure path.head {
   fill: var(--figure);
@@ -47,4 +48,15 @@
 }
 .figure .arrowhead {
   fill: var(--focus);
+}
+.figure .scene {
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.figure .scene.mirrored {
+  transform: scaleX(-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .figure .scene {
+    transition: none;
+  }
 }

@@ -1,7 +1,7 @@
 {
   "name": "Office Workout",
   "short_name": "Office Workout",
-  "description": "20 physical-therapist-recommended stretches and moves for people who sit all day.",
+  "description": "30 physical-therapist-recommended moves for people who sit all day.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -1,7 +1,7 @@
 import type { Animation } from '../figure/Figure';
 import { FLOOR, pose, type Keyframe, type PoseInput } from '../figure/rig';
 
-export type Area = 'Neck' | 'Shoulders' | 'Arms' | 'Upper back' | 'Back' | 'Wrists' | 'Hips' | 'Legs';
+export type Area = 'Neck' | 'Shoulders' | 'Chest' | 'Arms' | 'Upper back' | 'Back' | 'Sides' | 'Wrists' | 'Hips' | 'Legs';
 
 export type Dose =
   /** hold for `seconds`, once or on each side */
@@ -61,6 +61,10 @@ const SRC = {
   luna: {
     name: 'Luna Physical Therapy',
     url: 'https://www.getluna.com/blog/stretches-for-desk-workers',
+  },
+  aomIso: {
+    name: 'Art of Manliness: isometrics at the office',
+    url: 'https://www.artofmanliness.com/strength/fitness/isometrics-at-the-office/',
   },
   aom: {
     name: 'Art of Manliness: undo the damage of sitting',
@@ -148,16 +152,19 @@ const SIT: PoseInput = {
 };
 const CHAIR = { kind: 'chair', x: 74 } as const;
 
-/** Seated, front view. */
+/** Seated, front view: thighs come toward you (foreshortened), knees a little apart, shins straight down. */
 const SIT_FRONT: PoseInput = {
   x: 100,
-  y: 152,
-  legL: { a: 12, b: 12, s: 0.22 },
-  legR: { a: 12, b: 12, s: 0.22 },
-  armL: { ik: ['kneeL', -1, -6], bend: -1 },
-  armR: { ik: ['kneeR', 1, -6], bend: 1 },
+  y: 149,
+  legL: { a: 26, b: 26, s: 0.32 },
+  legR: { a: 26, b: 26, s: 0.32 },
+  armL: { ik: ['kneeL', -3, -9], bend: -1 },
+  armR: { ik: ['kneeR', 3, -9], bend: 1 },
 };
 const CHAIR_FRONT = { kind: 'chairFront', x: 100 } as const;
+
+/** Arms hanging loose at the sides. */
+const ARMS_HANG: PoseInput = { armL: { a: 6, b: 6 }, armR: { a: 6, b: 6 } };
 
 const STAND_FRONT: PoseInput = {
   y: STAND_Y,
@@ -169,6 +176,13 @@ const STAND_FRONT: PoseInput = {
 const GRIP_SEAT: PoseInput = {
   armR: { ik: [100, 163], bend: -1 },
   armL: { ik: [102, 163], bend: -1 },
+};
+
+/** Seated figure-4: near ankle resting on top of the far knee, hands on the crossed knee and ankle. */
+const FIG4: PoseInput = {
+  legR: { ik: [130, 151], bend: 1, s: 0.66, s2: 0.5, c: 10 },
+  armR: { ik: ['kneeR', -2, -7], bend: -1 },
+  armL: { ik: ['ankleR', -2, -6], bend: -1 },
 };
 
 /** Hand resting on the top of a chair back at x=128. */
@@ -234,7 +248,7 @@ export const EXERCISES: Exercise[] = [
       focus: ['neck'],
       frames: [
         kf([SIT_FRONT, { armL: { a: 8, b: 4 } }], 1, 0.6),
-        kf([SIT_FRONT, { neck: 40, head: 14, armL: { a: 8, b: 4 } }], 1.2, 2),
+        kf([SIT_FRONT, { neck: 26, head: 24, armL: { a: 8, b: 4 } }], 1.2, 2),
       ],
     },
   },
@@ -255,6 +269,8 @@ export const EXERCISES: Exercise[] = [
       props: [CHAIR_FRONT],
       focus: ['neck'],
       hint: 'M80 58 Q100 48 120 58',
+      // first side: turned right (1); switch: back to center (2); second side: turned left (3)
+      phasePoses: [1, 2, 3],
       frames: [
         kf([SIT_FRONT], 0.8, 0.4),
         kf([SIT_FRONT, { turn: 0.95 }], 1, 1.4),
@@ -276,15 +292,17 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'reps', reps: 10 },
     sources: [SRC.mayo, SRC.vcu],
     anim: {
-      view: 'side',
-      props: [CHAIR],
-      focus: ['upperTorso', 'neck'],
-      hint: 'M104 86 A14 14 0 1 0 98 108',
+      // Front view so the shrug is unmistakable: shoulders lift toward the ears, roll back, then drop.
+      view: 'front',
+      props: [CHAIR_FRONT],
+      focus: ['shoulders', 'neck'],
+      hint: 'M128 102 A13 13 0 1 0 112 80',
+      work: 1,
       frames: [
-        kf([SIT, { sh: [3, 0], armR: { a: 4, b: 12 }, armL: { a: 4, b: 12 } }], 0.5, 0),
-        kf([SIT, { sh: [3, 8], armR: { a: 4, b: 12 }, armL: { a: 4, b: 12 } }], 0.5, 0.1),
-        kf([SIT, { sh: [-5, 5], chest: -3, armR: { a: 4, b: 12 }, armL: { a: 4, b: 12 } }], 0.5, 0),
-        kf([SIT, { sh: [-4, -2], armR: { a: 4, b: 12 }, armL: { a: 4, b: 12 } }], 0.5, 0),
+        kf([SIT_FRONT, ARMS_HANG], 0.5, 0.1),
+        kf([SIT_FRONT, ARMS_HANG, { sh: [0, 10] }], 0.6, 0.1),
+        kf([SIT_FRONT, ARMS_HANG, { sh: [0, 5], armL: { a: 12, b: 4 }, armR: { a: 12, b: 4 } }], 0.5, 0),
+        kf([SIT_FRONT, ARMS_HANG, { sh: [0, -3] }], 0.5, 0.2),
       ],
     },
   },
@@ -301,12 +319,13 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'reps', reps: 10, holdSeconds: 5 },
     sources: [SRC.hingeScap, SRC.chatelaine],
     anim: {
+      // Torso stays upright; elbows bent at the sides drive straight back and the chest lifts a touch.
       view: 'side',
       props: [CHAIR],
       focus: ['upperTorso'],
       frames: [
-        kf([SIT, { chest: 6, armR: { a: 12, b: 80 }, armL: { a: 12, b: 80 } }], 0.9, 0.5),
-        kf([SIT, { chest: -6, neck: -3, sh: [-5, -1], armR: { a: -28, b: 86 }, armL: { a: -28, b: 86 } }], 0.9, 1.6),
+        kf([SIT, { armR: { a: -4, b: 88 }, armL: { a: -4, b: 88 } }], 0.9, 0.5),
+        kf([SIT, { chest: -3, sh: [-4, 1], armR: { a: -42, b: 96 }, armL: { a: -42, b: 96 } }], 0.9, 1.6),
       ],
     },
   },
@@ -345,6 +364,7 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'hold', seconds: 30, sides: 2 },
     sources: [SRC.hingeStretch, SRC.ewm],
     anim: {
+      // Forearm up the door frame with the elbow at shoulder height, then step through with the same-side foot.
       view: 'side',
       props: [{ kind: 'door', x: 66 }],
       focus: ['upperTorso', 'upperArmR'],
@@ -352,24 +372,22 @@ export const EXERCISES: Exercise[] = [
         kf(
           {
             x: 96,
-            y: STAND_Y + 2,
-            armR: { ik: [70, 32], bend: 1 },
-            armL: { ik: [72, 33], bend: 1 },
-            legR: { ik: [118, FLOOR - 5], bend: 1 },
-            legL: { ik: [86, FLOOR - 5], bend: 1 },
+            y: STAND_Y,
+            armR: { ik: [64, 32], bend: 1 },
+            armL: { a: 4, b: 8 },
           },
           1,
           0.5,
         ),
         kf(
           {
-            x: 110,
-            y: STAND_Y + 5,
-            torso: 6,
-            armR: { ik: [70, 32], bend: 1 },
-            armL: { ik: [72, 33], bend: 1 },
-            legR: { ik: [118, FLOOR - 5], bend: 1 },
-            legL: { ik: [86, FLOOR - 5], bend: 1 },
+            x: 104,
+            y: STAND_Y + 4,
+            torso: 5,
+            armR: { ik: [64, 32], bend: 1 },
+            armL: { a: 4, b: 8 },
+            legR: { ik: [134, FLOOR - 5], bend: 1 },
+            legL: { ik: [88, FLOOR - 5], bend: 1, c: -20 },
           },
           1.2,
           2,
@@ -394,7 +412,7 @@ export const EXERCISES: Exercise[] = [
       focus: ['upperArmR'],
       frames: [
         kf([STAND_FRONT, { armR: { a: -60, b: 30 }, armL: { ik: ['elbowR', 6, 5], bend: -1 } }], 1, 0.5),
-        kf([STAND_FRONT, { armR: { a: -96, b: 4 }, armL: { ik: ['elbowR', 4, 5], bend: -1 } }], 1, 2),
+        kf([STAND_FRONT, { armR: { a: -76, b: 6 }, armL: { ik: ['elbowR', 9, 3], bend: -1 } }], 1, 2),
       ],
     },
   },
@@ -437,13 +455,15 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'hold', seconds: 30, sides: 2 },
     sources: [SRC.luna, SRC.mayoHS],
     anim: {
+      // The trunk turns: shoulders narrow, the head looks over the shoulder, one hand crosses to the
+      // opposite knee and the other goes back to the chair (drawn pale, behind the body).
       view: 'front',
       props: [CHAIR_FRONT],
       focus: ['upperTorso', 'lowerTorso'],
       frames: [
         kf([SIT_FRONT], 1, 0.4),
         kf(
-          [SIT_FRONT, { twist: 0.85, turn: 0.15, armL: { ik: ['kneeR', -2, -6], bend: 1 }, armR: { ik: ['pelvis', 30, -26], bend: 1 } }],
+          [SIT_FRONT, { twist: 0.85, turn: 0.15, armL: { ik: ['kneeR', -2, -7], bend: 1 }, armR: { ik: ['pelvis', 25, -32], bend: -1 } }],
           1.2,
           2,
         ),
@@ -453,7 +473,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'standing-side-bend',
     name: 'Standing Side Bend',
-    area: 'Back',
+    area: 'Sides',
     why: 'Stretches the sides of your trunk and opens the ribs so you can breathe deeper.',
     steps: [
       'Stand tall, feet hip-width apart.',
@@ -467,7 +487,7 @@ export const EXERCISES: Exercise[] = [
       focus: ['lowerTorso', 'upperArmL'],
       frames: [
         kf([STAND_FRONT, { armL: { a: 160, b: 14 }, armR: { a: 6, b: 2 } }], 1, 0.4),
-        kf([STAND_FRONT, { torso: 6, chest: 16, neck: 6, armL: { a: 168, b: 10 }, armR: { a: 2, b: 0 } }], 1.2, 2),
+        kf([STAND_FRONT, { torso: 8, chest: 24, neck: 8, armL: { a: 168, b: 10 }, armR: { a: 2, b: 0 } }], 1.2, 2),
       ],
     },
   },
@@ -489,7 +509,7 @@ export const EXERCISES: Exercise[] = [
       frames: [
         kf({ armR: { ik: ['pelvis', -10, -14], bend: -1 }, armL: { ik: ['pelvis', -10, -14], bend: -1 } }, 1, 0.5),
         kf(
-          { x: 104, torso: -8, chest: -16, neck: -10, armR: { ik: ['pelvis', -10, -14], bend: -1 }, armL: { ik: ['pelvis', -10, -14], bend: -1 } },
+          { x: 109, torso: -11, chest: -14, neck: 4, head: -4, armR: { ik: ['pelvis', -10, -14], bend: -1 }, armL: { ik: ['pelvis', -10, -14], bend: -1 } },
           1.1,
           1,
         ),
@@ -517,21 +537,26 @@ export const EXERCISES: Exercise[] = [
     },
     sources: [SRC.mayoHS, SRC.hingeStretch],
     anim: {
+      // A close-up of the upper body with bigger hands, so the wrist position is the first thing you see.
       view: 'side',
       props: [CHAIR],
       focus: ['forearmR'],
+      handScale: 1.7,
+      zoom: [52, 50, 130, 143],
+      // palm out (fingers pulled back) is frame 3, palm down (wrist bent down) is frame 1; arm 2 is the mirror image
+      phasePoses: [3, 1, { frame: 3, mirror: true }, { frame: 1, mirror: true }],
       frames: [
-        kf([SIT, { armR: { a: 86, b: 0, c: 0 }, armL: { ik: ['handR', -2, -2], bend: -1 } }], 0.8, 0.3),
-        kf([SIT, { armR: { a: 86, b: 0, c: -80 }, armL: { ik: ['handR', 0, 0], bend: -1 } }], 0.9, 1.6),
-        kf([SIT, { armR: { a: 86, b: 0, c: 0 }, armL: { ik: ['handR', -2, -2], bend: -1 } }], 0.9, 0.3),
-        kf([SIT, { armR: { a: 86, b: 0, c: 80 }, armL: { ik: ['handR', 0, 0], bend: -1 } }], 0.9, 1.6),
+        kf([SIT, { armR: { a: 86, b: 0, c: 0 }, armL: { a: 30, b: 50 } }], 0.8, 0.3),
+        kf([SIT, { armR: { a: 86, b: 0, c: -78 }, armL: { ik: ['handR', 6, -7], bend: -1, c: 70 } }], 0.9, 1.6),
+        kf([SIT, { armR: { a: 86, b: 0, c: 0 }, armL: { a: 30, b: 50 } }], 0.9, 0.3),
+        kf([SIT, { armR: { a: 86, b: 0, c: 78 }, armL: { ik: ['handR', 8, 4], bend: -1, c: -60 } }], 0.9, 1.6),
       ],
     },
   },
   {
     id: 'desk-push-ups',
     name: 'Desk Push-Ups',
-    area: 'Shoulders',
+    area: 'Chest',
     why: 'Strengthens chest, shoulders and arms without leaving your desk.',
     steps: [
       'Place your hands on the edge of a sturdy desk (not a rolling one), shoulder-width apart.',
@@ -546,7 +571,7 @@ export const EXERCISES: Exercise[] = [
       focus: ['upperTorso', 'upperArmR'],
       frames: [
         kf([plank(39, 14), { armR: { ik: [150, 130], bend: -1 }, armL: { ik: [152, 130], bend: -1 } }], 0.9, 0.3),
-        kf([plank(50, 14), { armR: { ik: [150, 130], bend: -1 }, armL: { ik: [152, 130], bend: -1 } }], 0.9, 0.3),
+        kf([plank(53, 14), { armR: { ik: [150, 130], bend: -1 }, armL: { ik: [152, 130], bend: -1 } }], 0.9, 0.3),
       ],
     },
   },
@@ -566,12 +591,13 @@ export const EXERCISES: Exercise[] = [
       view: 'side',
       focus: ['thighR'],
       frames: [
+        // long split stance, back heel up; then tuck the pelvis and sink forward with the torso tall
         kf(
           {
-            x: 96,
-            y: STAND_Y + 4,
-            legL: { ik: [130, FLOOR - 5], bend: 1 },
-            legR: { ik: [62, FLOOR - 9], bend: 1, c: -40 },
+            x: 92,
+            y: STAND_Y + 8,
+            legL: { ik: [138, FLOOR - 5], bend: 1 },
+            legR: { ik: [46, FLOOR - 8], bend: 1, c: -48 },
             armR: { ik: ['pelvis', 6, -16], bend: 1 },
             armL: { ik: ['pelvis', 6, -16], bend: 1 },
           },
@@ -580,11 +606,12 @@ export const EXERCISES: Exercise[] = [
         ),
         kf(
           {
-            x: 104,
-            y: STAND_Y + 12,
-            torso: -4,
-            legL: { ik: [130, FLOOR - 5], bend: 1 },
-            legR: { ik: [62, FLOOR - 9], bend: 1, c: -40 },
+            x: 100,
+            y: STAND_Y + 17,
+            torso: -3,
+            chest: 2,
+            legL: { ik: [138, FLOOR - 5], bend: 1 },
+            legR: { ik: [46, FLOOR - 8], bend: 1, c: -48 },
             armR: { ik: ['pelvis', 6, -16], bend: 1 },
             armL: { ik: ['pelvis', 6, -16], bend: 1 },
           },
@@ -607,23 +634,13 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'hold', seconds: 30, sides: 2 },
     sources: [SRC.trx, SRC.hingeDesk],
     anim: {
-      view: 'front',
-      props: [CHAIR_FRONT],
+      // Side view: ankle crossed over the opposite knee, then a flat-back hinge forward from the hips.
+      view: 'side',
+      props: [CHAIR],
       focus: ['thighR'],
       frames: [
-        kf(
-          [SIT_FRONT, { legR: { a: 76, b: 166, s: 0.55 }, armR: { ik: ['kneeR', -4, -6], bend: -1 }, armL: { ik: ['ankleR', 4, -6], bend: 1 } }],
-          1,
-          0.5,
-        ),
-        kf(
-          [
-            SIT_FRONT,
-            { tlen: 0.8, neck: 0, legR: { a: 76, b: 166, s: 0.55 }, armR: { ik: ['kneeR', -4, -6], bend: -1 }, armL: { ik: ['ankleR', 4, -6], bend: 1 } },
-          ],
-          1.2,
-          2,
-        ),
+        kf([SIT, FIG4], 1, 0.5),
+        kf([SIT, FIG4, { torso: 30, neck: -6, armR: { ik: ['kneeR', 2, -6], bend: 1 }, armL: { ik: ['ankleR', 0, -6], bend: 1 } }], 1.2, 2),
       ],
     },
   },
@@ -774,9 +791,9 @@ export const EXERCISES: Exercise[] = [
         kf({ armR: { ik: [127, 108], bend: -1 }, armL: { ik: [129, 108], bend: -1 } }, 0.8, 0.2),
         kf(
           {
-            y: STAND_Y - 11,
-            legL: { a: 0, b: 0, c: -47 },
-            legR: { a: 0, b: 0, c: -47 },
+            y: STAND_Y - 14,
+            legL: { a: 0, b: 0, c: -66 },
+            legR: { a: 0, b: 0, c: -66 },
             armR: { ik: [127, 108], bend: -1 },
             armL: { ik: [129, 108], bend: -1 },
           },
@@ -828,7 +845,7 @@ export const EXERCISES: Exercise[] = [
         kf([SIT_FRONT], 1, 0.4),
         kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 0.9, 0),
         kf([SIT_FRONT, { armL: { ik: ['head', -1, -32], bend: 1, c: -25 }, armR: { ik: ['head', 1, -32], bend: -1, c: -25 } }], 0.9, 0.2),
-        kf([SIT_FRONT, { y: 150, sh: [0, 3], armL: { ik: ['head', -1, -40], bend: 1, c: -14 }, armR: { ik: ['head', 1, -40], bend: -1, c: -14 } }], 0.8, 2),
+        kf([SIT_FRONT, { y: 147, sh: [0, 3], armL: { ik: ['head', -1, -40], bend: 1, c: -14 }, armR: { ik: ['head', 1, -40], bend: -1, c: -14 } }], 0.8, 2),
         kf([SIT_FRONT, { armL: { ik: ['chest', -74, -22], bend: 1 }, armR: { ik: ['chest', 74, -22], bend: -1 } }], 1, 0),
       ],
     },
@@ -846,12 +863,13 @@ export const EXERCISES: Exercise[] = [
     dose: { kind: 'hold', seconds: 30, sides: 2 },
     sources: [SRC.mayoBack, SRC.nyc],
     anim: {
+      // Knee drawn up close to the chest, both hands clasped behind the thigh, back straight.
       view: 'side',
       props: [CHAIR],
       focus: ['lowerTorso', 'thighR'],
       frames: [
         kf([SIT], 1, 0.4),
-        kf([SIT, { torso: 4, legR: { a: 140, b: 122 }, armR: { ik: ['kneeR', -6, 11], bend: -1 }, armL: { ik: ['kneeR', -8, 12], bend: -1 } }], 1.3, 2.2),
+        kf([SIT, { torso: 3, legR: { a: 156, b: 150 }, armR: { ik: ['kneeR', -12, 22], bend: -1 }, armL: { ik: ['kneeR', -14, 23], bend: -1 } }], 1.3, 2.2),
       ],
     },
   },
@@ -891,6 +909,8 @@ export const EXERCISES: Exercise[] = [
     sources: [SRC.truPace, SRC.umich],
     anim: {
       view: 'side',
+      // a continuous move: march along with the timer
+      phasePoses: ['loop'],
       props: [CHAIR],
       focus: ['thighL', 'thighR'],
       frames: [
@@ -911,15 +931,19 @@ export const EXERCISES: Exercise[] = [
       'Straighten one knee until the leg is level, toes pointing up, and squeeze your thigh.',
       'Hold, lower slowly, and alternate legs each rep.',
     ],
-    dose: { kind: 'reps', reps: 10, holdSeconds: 5 },
+    dose: { kind: 'reps', reps: 10, holdSeconds: 5, perSide: true },
     sources: [SRC.truPace, SRC.griffin],
     anim: {
       view: 'side',
       props: [CHAIR],
-      focus: ['thighR'],
+      focus: ['thighR', 'thighL'],
+      // legs alternate every rep, so side 2 is the far leg rather than a mirrored scene
+      secondSide: 3,
       frames: [
         kf([SIT, GRIP_SEAT, { torso: 0 }], 1, 0.5),
         kf([SIT, GRIP_SEAT, { torso: 0, legR: { a: 92, b: 0, c: -6 } }], 1.1, 1.6),
+        kf([SIT, GRIP_SEAT, { torso: 0 }], 1, 0.5),
+        kf([SIT, GRIP_SEAT, { torso: 0, legL: { a: 92, b: 0, c: -6 } }], 1.1, 1.6),
       ],
     },
   },
@@ -990,48 +1014,26 @@ export const EXERCISES: Exercise[] = [
     },
   },
   {
-    id: 'chair-dips',
-    name: 'Chair Triceps Dips',
+    id: 'desk-triceps-press',
+    name: 'Desk Triceps Press',
     area: 'Arms',
-    why: 'Strengthens the backs of your arms and your shoulders using just a sturdy chair.',
+    why: 'Works the backs of your arms using only the desk in front of you, with nothing that can roll away.',
     steps: [
-      'Use a sturdy chair without wheels. Sit on the edge, hands gripping the front of the seat beside your hips.',
-      'Walk your feet out and slide your hips off the seat, knees bent.',
-      'Bend your elbows straight back to lower your hips, then press back up.',
+      'Sit tall close to your desk, elbows bent and tucked in at your sides.',
+      'Put your palms flat on the desktop and press straight down, building up gradually to a firm push. Your body shouldn’t move.',
+      'Hold, breathing normally, then relax. Keep your shoulders down and away from your ears.',
     ],
-    dose: { kind: 'reps', reps: 10 },
-    sources: [SRC.beaconOrtho, SRC.pih, SRC.jhu],
+    dose: { kind: 'reps', reps: 3, holdSeconds: 10 },
+    sources: [SRC.aomIso],
     anim: {
+      // An isometric press: hands stay flat on the desk, the shoulders set down and the elbows firm up a touch.
       view: 'side',
-      props: [CHAIR],
+      props: [CHAIR, { kind: 'desk', x: 112, top: 141 }],
       focus: ['upperArmR', 'upperArmL'],
+      hint: 'M124 112 L124 128',
       frames: [
-        kf(
-          {
-            x: 132,
-            y: 160,
-            torso: -6,
-            legR: { ik: [178, FLOOR - 5], bend: 1 },
-            legL: { ik: [176, FLOOR - 5], bend: 1 },
-            armR: { ik: [120, 166], bend: -1, c: 80 },
-            armL: { ik: [118, 166], bend: -1, c: 80 },
-          },
-          0.9,
-          0.3,
-        ),
-        kf(
-          {
-            x: 130,
-            y: 184,
-            torso: -6,
-            legR: { ik: [178, FLOOR - 5], bend: 1 },
-            legL: { ik: [176, FLOOR - 5], bend: 1 },
-            armR: { ik: [120, 166], bend: -1, c: 80 },
-            armL: { ik: [118, 166], bend: -1, c: 80 },
-          },
-          1,
-          0.2,
-        ),
+        kf([SIT, { armR: { ik: [116, 137], bend: -1 }, armL: { ik: [118, 137], bend: -1 } }], 0.9, 0.6),
+        kf([SIT, { y: 160, sh: [0, -2], armR: { ik: [116, 137], bend: -1 }, armL: { ik: [118, 137], bend: -1 } }], 0.9, 1.8),
       ],
     },
   },

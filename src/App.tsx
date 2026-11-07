@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Deck } from './components/Deck';
 import { History, Home, Summary } from './components/Screens';
 import { EXERCISE_IDS } from './data/lookup';
-import { isFinished, newSession, record, toHistory, undo, type HistoryEntry, type Result, type Session } from './lib/session';
+import { isFinished, newSession, record, streak, toHistory, undo, type HistoryEntry, type Result, type Session } from './lib/session';
 import { addHistory, clearHistory, loadHistory, loadSession, saveSession } from './lib/storage';
 
 type Screen = 'home' | 'deck' | 'summary' | 'history';
@@ -42,7 +42,7 @@ export default function App() {
     return <Deck session={session} onResult={onResult} onUndo={() => update(undo(session))} onEnd={() => setScreen('home')} />;
   }
   if (screen === 'summary' && summary) {
-    return <Summary entry={summary} onAgain={start} onHome={() => setScreen('home')} />;
+    return <Summary entry={summary} streak={streak(history)} onAgain={start} onHome={() => setScreen('home')} />;
   }
   if (screen === 'history') {
     return (
@@ -63,6 +63,7 @@ export default function App() {
       onStart={start}
       onResume={() => setScreen('deck')}
       onFinish={() => session && finish(session)}
+      onDiscard={() => update(null)}
       onHistory={() => setScreen('history')}
     />
   );

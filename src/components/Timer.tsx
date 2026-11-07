@@ -2,10 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { totalSeconds, type Phase } from '../lib/session';
 import { beep, unlockAudio } from '../lib/sound';
 
-type Status = 'idle' | 'running' | 'paused' | 'finished';
+export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished';
+type Status = TimerStatus;
 
 /** Start/pause countdown that walks through each phase, chiming at every change. */
-export function Timer({ phases, summary }: { phases: Phase[]; summary: string }) {
+export function Timer({
+  phases,
+  summary,
+  onState,
+}: {
+  phases: Phase[];
+  summary: string;
+  /** told whenever the status or the current phase changes, so the figure can follow along */
+  onState?: (status: TimerStatus, phase: number) => void;
+}) {
   const [status, setStatus] = useState<Status>('idle');
   const [elapsed, setElapsed] = useState(0); // seconds into the whole sequence
   const startedAt = useRef(0);
@@ -62,6 +72,10 @@ export function Timer({ phases, summary }: { phases: Phase[]; summary: string })
 
   const idx = phaseIndex(phases, elapsed);
   const phase = phases[idx];
+
+  useEffect(() => {
+    onState?.(status, idx);
+  }, [status, idx, onState]);
   const phaseStart = phases.slice(0, idx).reduce((s, p) => s + p.seconds, 0);
   const phaseLeft = Math.max(0, Math.ceil(phase.seconds - (elapsed - phaseStart) - 1e-6));
   const progress = status === 'finished' ? 1 : (elapsed - phaseStart) / phase.seconds;
@@ -83,8 +97,8 @@ export function Timer({ phases, summary }: { phases: Phase[]; summary: string })
           strokeDashoffset={C * (1 - progress)}
           transform="rotate(-90 32 32)"
         />
-        <text x="32" y="33" textAnchor="middle" dominantBaseline="middle" className="ring-text">
-          {status === 'finished' ? '✓' : status === 'idle' ? total : phaseLeft}
+        <text x="32" y="33" textAnchor="middle" dominantBaseline="middle" className={`ring-text${(status === 'idle' ? total : phaseLeft) >= 60 ? ' long' : ''}`}>
+          {status === 'finished' ? '✓' : clock(status === 'idle' ? total : phaseLeft)}
         </text>
       </svg>
       <div className="timer-info" aria-live="polite">
@@ -116,6 +130,12 @@ export function Timer({ phases, summary }: { phases: Phase[]; summary: string })
       </div>
     </div>
   );
+}
+
+/** 45 → "45s", 65 → "1:05". */
+export function clock(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 function phaseIndex(phases: Phase[], elapsed: number): number {
